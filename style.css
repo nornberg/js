@@ -2,7 +2,7 @@ body {
   margin: 0px;
   padding: 0px;
   overflow: hidden;
-  background-color: white;
+  background-color: black;
 }
 
 .container {
@@ -16,5 +16,5 @@ body {
 }
 
 #canvas {
-  border: 1px solid gray;
+  border: 1px solid #333;
 }
