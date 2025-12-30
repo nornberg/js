@@ -4,6 +4,7 @@ let fps = 0;
 let frame_count = 0;
 let frame_time = 0;
 let last_update_time = 0;
+const text_shadow = 2;
 
 let palette = [];
 let buffer = [];
@@ -14,15 +15,20 @@ const frame = (timestamp) => {
     frame_time = timestamp;
     frame_count = 0;
   }
-  if (timestamp - last_update_time >= 33){
+  if (timestamp - last_update_time >= 0){
     last_update_time = timestamp;
     frame_count++;
     ctx.putImageData(imgBuffer, 0, 0);
     ctx.textBaseline = "top";
     ctx.font = "20px Roboto";
-    ctx.fillStyle = "red";
-    ctx.fillText("TESTE. " + (Math.random()*1000).toFixed(0), 10, 10);
-    ctx.fillText(fps + ' fps', imgBuffer.width-140, 10);
+    let s1 = "TESTE. " + (Math.random()*1000).toFixed(0);
+    let s2 = fps + ' fps';
+    ctx.fillStyle = "black";
+    ctx.fillText(s1, 10+text_shadow, 10+text_shadow);
+    ctx.fillText(s2, imgBuffer.width - ctx.measureText(s2).width - 10+text_shadow, 10+text_shadow);
+    ctx.fillStyle = "white";
+    ctx.fillText(s1, 10, 10);
+    ctx.fillText(s2, imgBuffer.width - ctx.measureText(s2).width - 10, 10);
     draw(imgBuffer);
   }
   window.requestAnimationFrame(frame);
@@ -51,6 +57,10 @@ const draw = (imgBuffer) => {
     }
   }
 };
+
+const render = () => {
+  
+}
 
 const setup = (imgBuffer) => {
   for (let p = 0; p < 16; p++){
