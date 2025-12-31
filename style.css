@@ -5,7 +5,7 @@ body {
   background-color: black;
 }
 
-.container {
+#container {
   position: absolute;
   width: 100vw;
   height: 100vh;
@@ -17,4 +17,11 @@ body {
 
 #canvas {
 
+}
+
+#bFullScreen {
+  position: absolute;
+  left: 20px;
+  top: 200px;
+  z-index: 999;
 }

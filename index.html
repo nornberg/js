@@ -2,14 +2,40 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=0.8">
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
-    <div class="container">
+    <div id="container">
       <canvas id="canvas"></canvas>
+      <button id="bFullScreen" onclick="toggleFullscreen()">FS</button>
     </div>
+    <script>
+      function toggleFullscreen() {
+          var elem = document.documentElement; // Makes the entire page content fullscreen
+          elem = document.getElementById("container");
 
+          if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+              // If already in fullscreen, exit fullscreen
+              if (document.exitFullscreen) {
+                  document.exitFullscreen();
+              } else if (document.webkitExitFullscreen) { /* Safari */
+                  document.webkitExitFullscreen();
+              } else if (document.msExitFullscreen) { /* IE11 */
+                  document.msExitFullscreen();
+              }
+          } else {
+              // Otherwise, request fullscreen
+              if (elem.requestFullscreen) {
+                  elem.requestFullscreen();
+              } else if (elem.webkitRequestFullscreen) { /* Safari */
+                  elem.webkitRequestFullscreen();
+              } else if (elem.msRequestFullscreen) { /* IE11 */
+                  elem.msRequestFullscreen();
+              }
+          }
+      }
+    </script>
     <script src="script.js"></script>
   </body>
 </html>

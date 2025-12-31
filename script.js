@@ -6,8 +6,29 @@ let frame_time = 0;
 let last_update_time = 0;
 const text_shadow = 2;
 
+let debug_str = 'debug str';
+let min_color = 20;
+let max_color = -1;
+
 let palette = [];
 let buffer = [];
+let bg = {
+  w: WIDTH * 2,
+  h: HEIGHT * 2,
+  x: 0,
+  y: 0,
+};
+
+function rad(degree) {
+  return degree * Math.PI / 180;
+}
+
+function sanityCheck(imgBuffer) {
+  if (bg.x < 0) bg.x = 0;
+  if (bg.x > bg.w-imgBuffer.width-1) bg.x = bg.w-imgBuffer.width-1;
+  if (bg.y < 0) bg.y = 0;
+  if (bg.y > bg.h-imgBuffer.height-1) bg.y = bg.h-imgBuffer.height-1;
+}
 
 const frame = (timestamp) => {
   if (timestamp - frame_time >= 1000){
@@ -15,9 +36,13 @@ const frame = (timestamp) => {
     frame_time = timestamp;
     frame_count = 0;
   }
-  if (timestamp - last_update_time >= 0){
+  let elapsed_time = timestamp - last_update_time;
+  // TODO: fazer o elapsed_time ser independente da limitação de fps abaixo.
+  if (elapsed_time >= 0){
     last_update_time = timestamp;
     frame_count++;
+    ctx.fillStyle = "blue";
+    ctx.fillRect(0,0,imgBuffer.width,imgBuffer.height);
     ctx.putImageData(imgBuffer, 0, 0);
     ctx.textBaseline = "top";
     ctx.font = "20px Roboto";
@@ -26,55 +51,88 @@ const frame = (timestamp) => {
     ctx.fillStyle = "black";
     ctx.fillText(s1, 10+text_shadow, 10+text_shadow);
     ctx.fillText(s2, imgBuffer.width - ctx.measureText(s2).width - 10+text_shadow, 10+text_shadow);
+    ctx.fillText(debug_str, 10+text_shadow, 450+text_shadow);
     ctx.fillStyle = "white";
     ctx.fillText(s1, 10, 10);
     ctx.fillText(s2, imgBuffer.width - ctx.measureText(s2).width - 10, 10);
-    draw(imgBuffer);
+    ctx.fillText(debug_str, 10, 450);
+    draw(imgBuffer, elapsed_time);
+    render(imgBuffer, elapsed_time);
   }
   window.requestAnimationFrame(frame);
 };
 
 const draw = (imgBuffer) => {
-  let lumi = Math.random()*50;
+  /*
   for (let y = 0; y < imgBuffer.height; y++) {
     for (let x = 0; x < imgBuffer.width; x++) {
       let bidx = y * imgBuffer.width + x;
-      let idx = 4 * bidx;
-      const cx = x * (lumi / imgBuffer.width);
-      imgBuffer.data[idx + 0] = palette[buffer[bidx]].r;
-      imgBuffer.data[idx + 1] = palette[buffer[bidx]].g;
-      imgBuffer.data[idx + 2] = palette[buffer[bidx]].b;
-      if (x<=0 || x>=imgBuffer.width-1){
-        imgBuffer.data[idx + 0] = 255;
-        imgBuffer.data[idx + 1] = 0;
-        imgBuffer.data[idx + 2] = 0;
+      let color = Math.trunc(Math.random() * 16);
+      buffer[bidx] = color;
+      if (min_color > color) {
+        min_color = color;
+        debug_str = min_color + ' - ' + max_color;
       }
-      if (y<=0 || y>=imgBuffer.height-1){
-        imgBuffer.data[idx + 0] = 255;
-        imgBuffer.data[idx + 1] = 0;
-        imgBuffer.data[idx + 2] = 0;
+      if (max_color < color) {
+        max_color = color;
+        debug_str = min_color + ' - ' + max_color;
       }
     }
   }
+  */
 };
 
-const render = () => {
-  
+let sin_delta = 0;
+const onLineStart = (lineIdx, elapsed_time, imgBuffer) => {
+  let perc = lineIdx / imgBuffer.height + sin_delta; // percentual do circulo entre 0 e 1.
+  let r = perc * 2 * Math.PI; // 2*PI é um circulo completo (360ª).
+  bg.x = 100 + Math.trunc(Math.sin(r) * 50);
+  if (lineIdx == 0) {
+    sin_delta += 0.02 / elapsed_time;
+    if (sin_delta >= 1) {
+      sin_delta = 0;
+    }
+  }
+}
+
+const render = (imgBuffer, elapsed_time) => {
+  for (let y = 0; y < imgBuffer.height; y++) {
+    onLineStart(y, elapsed_time, imgBuffer);
+    sanityCheck(imgBuffer);
+    for (let x = 0; x < imgBuffer.width; x++) {
+      let xx = x + bg.x;
+      let yy = y + bg.y;
+      if (xx >= 0 && xx < bg.w && yy >= 0 && yy < bg.h) {
+        let bidx = yy * bg.w + xx;
+        let idx = 4 * (y * imgBuffer.width + x);
+        imgBuffer.data[idx + 0] = palette[buffer[bidx]].r;
+        imgBuffer.data[idx + 1] = palette[buffer[bidx]].g;
+        imgBuffer.data[idx + 2] = palette[buffer[bidx]].b;
+      }
+    }
+  }
 }
 
 const setup = (imgBuffer) => {
   for (let p = 0; p < 16; p++){
     palette.push({r:p*10, g:p*10, b:p*10});
   }
+  palette[15] = {r:255, g:0, b:0};
   for (let y = 0; y < imgBuffer.height; y++) {
     for (let x = 0; x < imgBuffer.width; x++) {
-      let bidx = y * imgBuffer.width + x;
-      let idx = 4 * bidx;
-      imgBuffer.data[idx + 0] = 0;
-      imgBuffer.data[idx + 1] = 0;
-      imgBuffer.data[idx + 2] = 0;
+      let idx = 4 * (y * imgBuffer.width + x);
       imgBuffer.data[idx + 3] = 255;
-      buffer[bidx] = x % 16;
+    }
+  }
+  for (let y = 0; y < bg.h; y++) {
+    for (let x = 0; x < bg.w; x++) {
+      let bidx = y * bg.w + x;
+      buffer[bidx] = x % 15;
+      if (y == 0 || x == 0) {
+        buffer[bidx] = 15;
+      } else if (y == bg.h-1 || x == bg.w-1) {
+        buffer[bidx] = 15;
+      }
     }
   }
 };
