@@ -2,6 +2,8 @@
 
 const WIDTH = 640;
 const HEIGHT = 480;
+const TEXT_SHADOW = 2;
+
 let imgBuffer = null;
 let canvas = null;
 let ctx = null;
@@ -10,7 +12,6 @@ let fps = 0;
 let frame_count = 0;
 let frame_time = 0;
 let last_update_time = 0;
-const text_shadow = 2;
 
 let debug_str = 'debug str';
 let min_color = 20;
@@ -18,25 +19,27 @@ let max_color = -1;
 
 let palette = [];
 let buffer = [];
-let bg = {
+let bgs = [{
   w: WIDTH * 2,
   h: HEIGHT * 2,
   x: 0,
   y: 0,
-};
+  buffer: [],
+}];
 
 function rad(degree) {
   return degree * Math.PI / 180;
 }
 
 function sanityCheck(imgBuffer) {
+  let bg = bgs[0];
   if (bg.x < 0) bg.x = 0;
   if (bg.x > bg.w-imgBuffer.width-1) bg.x = bg.w-imgBuffer.width-1;
   if (bg.y < 0) bg.y = 0;
   if (bg.y > bg.h-imgBuffer.height-1) bg.y = bg.h-imgBuffer.height-1;
 }
 
-const frame = (timestamp) => {
+function frame(timestamp) {
   if (timestamp - frame_time >= 1000){
     fps = frame_count;
     frame_time = timestamp;
@@ -55,26 +58,26 @@ const frame = (timestamp) => {
     let s1 = "TESTE. " + (Math.random()*1000).toFixed(0);
     let s2 = fps + ' fps';
     ctx.fillStyle = "black";
-    ctx.fillText(s1, 10+text_shadow, 10+text_shadow);
-    ctx.fillText(s2, imgBuffer.width - ctx.measureText(s2).width - 10+text_shadow, 10+text_shadow);
-    ctx.fillText(debug_str, 10+text_shadow, 450+text_shadow);
+    ctx.fillText(s1, 10+TEXT_SHADOW, 10+TEXT_SHADOW);
+    ctx.fillText(s2, imgBuffer.width - ctx.measureText(s2).width - 10+TEXT_SHADOW, 10+TEXT_SHADOW);
+    ctx.fillText(debug_str, 10+TEXT_SHADOW, 450+TEXT_SHADOW);
     ctx.fillStyle = "white";
     ctx.fillText(s1, 10, 10);
     ctx.fillText(s2, imgBuffer.width - ctx.measureText(s2).width - 10, 10);
     ctx.fillText(debug_str, 10, 450);
-    draw(imgBuffer, elapsed_time);
+    //draw(bgs[0], imgBuffer, elapsed_time);
     render(imgBuffer, elapsed_time);
   }
   window.requestAnimationFrame(frame);
 };
 
-const draw = (imgBuffer) => {
+function draw(bg, imgBuffer, elapsed_time) {
   /*
   for (let y = 0; y < imgBuffer.height; y++) {
     for (let x = 0; x < imgBuffer.width; x++) {
       let bidx = y * imgBuffer.width + x;
       let color = Math.trunc(Math.random() * 16);
-      buffer[bidx] = color;
+      bg.buffer[bidx] = color;
       if (min_color > color) {
         min_color = color;
         debug_str = min_color + ' - ' + max_color;
@@ -88,11 +91,12 @@ const draw = (imgBuffer) => {
   */
 };
 
-const onLineStart = (lineIdx, elapsed_time, imgBuffer) => {
-  sinWave(bg, lineIdx, elapsed_time, imgBuffer);
+function onLineStart(lineIdx, elapsed_time, imgBuffer) {
+  sinWave(bgs[0], lineIdx, elapsed_time, imgBuffer);
 }
 
-const render = (imgBuffer, elapsed_time) => {
+function render(imgBuffer, elapsed_time) {
+  let bg = bgs[0];
   for (let y = 0; y < imgBuffer.height; y++) {
     onLineStart(y, elapsed_time, imgBuffer);
     sanityCheck(imgBuffer);
@@ -102,15 +106,15 @@ const render = (imgBuffer, elapsed_time) => {
       if (xx >= 0 && xx < bg.w && yy >= 0 && yy < bg.h) {
         let bidx = yy * bg.w + xx;
         let idx = 4 * (y * imgBuffer.width + x);
-        imgBuffer.data[idx + 0] = palette[buffer[bidx]].r;
-        imgBuffer.data[idx + 1] = palette[buffer[bidx]].g;
-        imgBuffer.data[idx + 2] = palette[buffer[bidx]].b;
+        imgBuffer.data[idx + 0] = palette[bg.buffer[bidx]].r;
+        imgBuffer.data[idx + 1] = palette[bg.buffer[bidx]].g;
+        imgBuffer.data[idx + 2] = palette[bg.buffer[bidx]].b;
       }
     }
   }
 }
 
-const setup = (imgBuffer) => {
+function setup(imgBuffer) {
   for (let p = 0; p < 16; p++){
     palette.push({r:p*10, g:p*10, b:p*10});
   }
@@ -121,14 +125,15 @@ const setup = (imgBuffer) => {
       imgBuffer.data[idx + 3] = 255;
     }
   }
+  let bg = bgs[0];
   for (let y = 0; y < bg.h; y++) {
     for (let x = 0; x < bg.w; x++) {
       let bidx = y * bg.w + x;
-      buffer[bidx] = x % 15;
+      bg.buffer[bidx] = x % 15;
       if (y == 0 || x == 0) {
-        buffer[bidx] = 15;
+        bg.buffer[bidx] = 15;
       } else if (y == bg.h-1 || x == bg.w-1) {
-        buffer[bidx] = 15;
+        bg.buffer[bidx] = 15;
       }
     }
   }
