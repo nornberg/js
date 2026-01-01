@@ -1,5 +1,11 @@
+"use strict";
+
 const WIDTH = 640;
 const HEIGHT = 480;
+let imgBuffer = null;
+let canvas = null;
+let ctx = null;
+
 let fps = 0;
 let frame_count = 0;
 let frame_time = 0;
@@ -82,17 +88,8 @@ const draw = (imgBuffer) => {
   */
 };
 
-let sin_delta = 0;
 const onLineStart = (lineIdx, elapsed_time, imgBuffer) => {
-  let perc = lineIdx / imgBuffer.height + sin_delta; // percentual do circulo entre 0 e 1.
-  let r = perc * 2 * Math.PI; // 2*PI é um circulo completo (360ª).
-  bg.x = 100 + Math.trunc(Math.sin(r) * 50);
-  if (lineIdx == 0) {
-    sin_delta += 0.02 / elapsed_time;
-    if (sin_delta >= 1) {
-      sin_delta = 0;
-    }
-  }
+  sinWave(bg, lineIdx, elapsed_time, imgBuffer);
 }
 
 const render = (imgBuffer, elapsed_time) => {
@@ -137,21 +134,36 @@ const setup = (imgBuffer) => {
   }
 };
 
-let canvas = null;
-let ctx = null;
-canvas = document.getElementById("canvas");
-canvas.width = WIDTH;
-canvas.height = HEIGHT;
-canvas.style.height = "100%";
-canvas.style.imageRendering = "pixelated";
-ctx = canvas.getContext("2d", { alpha: false, antialias: false, depth: false });
-ctx.imageSmoothingEnabled = false;
+function main() {
+  canvas = document.getElementById("canvas");
+  canvas.width = WIDTH;
+  canvas.height = HEIGHT;
+  canvas.style.height = "100%";
+  canvas.style.imageRendering = "pixelated";
+  ctx = canvas.getContext("2d", { alpha: false, antialias: false, depth: false });
+  ctx.imageSmoothingEnabled = false;
 
-const imgBuffer = ctx.createImageData(canvas.width, canvas.height);
-setup(imgBuffer);
+  imgBuffer = ctx.createImageData(canvas.width, canvas.height);
 
-window.onresize = () => {
-  console.log(canvas.width + "x" + canvas.height + ", " + imgBuffer.width + "x" + imgBuffer.height);
-};
+  window.onresize = () => {
+    console.log(canvas.width + "x" + canvas.height + ", " + imgBuffer.width + "x" + imgBuffer.height);
+  };
 
-window.requestAnimationFrame(frame);
+  setup(imgBuffer);
+  window.requestAnimationFrame(frame);
+}
+
+main();
+
+let sin_delta = 0;
+function sinWave (bg, lineIdx, elapsed_time, imgBuffer) {
+  let perc = lineIdx / imgBuffer.height + sin_delta; // percentual do circulo entre 0 e 1.
+  let r = perc * 2 * Math.PI; // 2*PI é um circulo completo (360ª).
+  bg.x = 100 + Math.trunc(Math.sin(r) * 50);
+  if (lineIdx == 0) {
+    sin_delta += 0.02 / elapsed_time;
+    if (sin_delta >= 1) {
+      sin_delta = 0;
+    }
+  }
+}
