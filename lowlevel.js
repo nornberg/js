@@ -2,7 +2,7 @@
 
 // ---- CONSTANTS ----
 
-export const PALETTE_SIZE = 250;
+export const PALETTE_SIZE = 216 + 1; // índice 216 é a cor transparente.
 
 export const SCREEN_WIDTH = 640;
 export const SCREEN_HEIGHT = 480;
@@ -84,14 +84,17 @@ export function init() {
 }
 
 function setDefaultPalette(size) {
-    //preecher a paleta com 250 cores bem distribuídas pelo espector possível, atribuindo valores entre 0 e 255 para cada propriedade r, g, b.
     let palette = [];
-    for (let i = 0; i < size; i++){
-        let r = Math.floor(Math.sin(0.3 * i + 0) * 127 + 128);
-        let g = Math.floor(Math.sin(0.3 * i + 2) * 127 + 128);
-        let b = Math.floor(Math.sin(0.3 * i + 4) * 127 + 128);
-        palette[i] = {r: r, g: g, b: b};
+    let step = Math.cbrt(size - 1);
+    let mult = 255 / (step-1);
+    for (let r = 0; r < step; r++){
+        for (let g = 0; g < step; g++){
+            for (let b = 0; b < step; b++){
+                palette.push({r: Math.trunc(r*mult), g: Math.trunc(g*mult), b: Math.trunc(b*mult)});
+            }
+        }
     }
+    palette.push({r: 255, g: 0, b: 255}); // cor transparente
     return palette;
 }
 
