@@ -33,7 +33,7 @@ function setup() {
 
 function main() {
   lowlevel.init();
-  graphics.init(lowlevel);
+  graphics.init("gamecanvas", lowlevel);
   setup();
 }
 

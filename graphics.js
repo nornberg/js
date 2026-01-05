@@ -1,5 +1,7 @@
 "use strict";
 
+import * as debug from "./debug.js";
+
 const TEXT_SHADOW = 2;
 
 let canvas = null;
@@ -16,11 +18,12 @@ let lowlevel = null;
 
 let debug_str = "DEBUG STR";
 
-export function init(aLowlevel) {
+export function init(canvasElementName,aLowlevel) {
     lowlevel = aLowlevel;
-    createCanvas("canvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-    createScreenBuffer();
+    createCanvas(canvasElementName, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
+    createBuffers();
     window.requestAnimationFrame(frame);
+    debug.init(lowlevel);
 }
 
 function bufferIndex(x, y, width) {
@@ -31,14 +34,14 @@ function createCanvas(canvasElementName, width, height) {
     canvas = document.getElementById(canvasElementName);
     canvas.width = width;
     canvas.height = height;
-    canvas.style.height = "100%";
+    //canvas.style.height = "100%";
     canvas.style.imageRendering = "pixelated";
     
     ctx = canvas.getContext("2d", { alpha: false, antialias: false, depth: false });
     ctx.imageSmoothingEnabled = false;
 }
 
-function createScreenBuffer() {
+function createBuffers() {
     screenBuffer = ctx.createImageData(canvas.width, canvas.height);
     for (let y = 0; y < screenBuffer.height; y++) {
         for (let x = 0; x < screenBuffer.width; x++) {

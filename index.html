@@ -7,8 +7,18 @@
   </head>
   <body>
     <div id="container">
-      <canvas id="canvas"></canvas>
-      <button id="bFullScreen" onclick="toggleFullscreen()">FS</button>
+      <div id="game">
+        <canvas id="gamecanvas"></canvas>
+      </div>
+      <div id="bg">
+        <canvas id="bgcanvas"></canvas>
+      </div>
+      <div id="objects">
+        <canvas id="objectscanvas"></canvas>
+      </div>
+      <div id="tiles">
+        <canvas id="tilescanvas"></canvas>
+      </div>
     </div>
     <script>
       function toggleFullscreen() {
@@ -35,6 +45,13 @@
               }
           }
       }
+      
+      // add eventlistener to toggle full screen when pressing f11
+      document.addEventListener("keydown", function(event) {
+          if (event.key === "F11") {
+              toggleFullscreen();
+          }
+      });
     </script>
     <script type="module" src="script.js"></script>
   </body>
