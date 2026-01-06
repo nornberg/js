@@ -1,21 +1,25 @@
 "use strict";
 
 let lowlevel = null;
-let bgCanvas = null;
-let objectsCanvas = null;
-let tilesCanvas = null;
+let canvasBg = null;
+let canvasObjects = null;
+let canvasTiles = null;
 let ctxBg = null;
 let ctxObjects = null;
 let ctxTiles = null;
+let bufferBg = null;
+let bufferObjects = null;
+let bufferTiles = null;
 
-export function init(aLowlevel) {
+export function init(aLowlevel, aBufferBg) {
     lowlevel = aLowlevel;
-    bgCanvas = createCanvas("bgcanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-    objectsCanvas = createCanvas("objectscanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-    tilesCanvas = createCanvas("tilescanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-    ctxBg = bgCanvas.getContext("2d", { alpha: false, antialias: false, depth: false });
-    ctxObjects = objectsCanvas.getContext("2d", { alpha: false, antialias: false, depth: false });
-    ctxTiles = tilesCanvas.getContext("2d", { alpha: false, antialias: false, depth: false });
+    bufferBg = aBufferBg;
+    canvasBg = createCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.TILE_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.TILE_V_SIZE);
+    // canvasObjects = createCanvas("objectscanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
+    // canvasTiles = createCanvas("tilescanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
+    ctxBg = createContext(canvasBg, "lightblue");
+    // ctxObjects = createContext(canvasObjects, "darkgray");
+    // ctxTiles = createContext(canvasTiles, "greenyellow");
 }
 
 function createCanvas(canvasElementName, width, height) {
@@ -26,9 +30,35 @@ function createCanvas(canvasElementName, width, height) {
     return canvas;
 }
 
-
-
-export function debugFrame(elapsedTime) {
-    
+function createContext(canvas, color) {
+    let context = canvas.getContext("2d", { alpha: false, antialias: false, depth: false });
+    context.imageSmoothingEnabled = false;
+    context.fillStyle = color;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    return context;
 }
 
+function createBuffer(w, h) {
+    let buffer = ctxBg.createImageData(w, h);
+    buffer.data.fill(255);
+    for (let y = 0; y < buffer.height; y++) {
+        for (let x = 0; x < buffer.width; x++) {
+            buffer.data[bufferIndex(x, y, buffer.width) + 0] = 255;
+            buffer.data[bufferIndex(x, y, buffer.width) + 1] = 0;
+            buffer.data[bufferIndex(x, y, buffer.width) + 3] = 255;
+        }
+    }
+    return buffer;
+}
+
+let lastTimestamp = 0;
+export function frame(timestamp) {
+    if (timestamp - lastTimestamp >= 100) {
+        lastTimestamp = timestamp;
+        ctxBg.putImageData(bufferBg, 0, 0);
+    }
+}
+
+function bufferIndex(x, y, width) {
+    return 4 * (y * width + x);
+}

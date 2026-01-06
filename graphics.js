@@ -22,8 +22,8 @@ export function init(canvasElementName,aLowlevel) {
     lowlevel = aLowlevel;
     createCanvas(canvasElementName, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
     createBuffers();
+    debug.init(lowlevel, bgBuffer);
     window.requestAnimationFrame(frame);
-    debug.init(lowlevel);
 }
 
 function bufferIndex(x, y, width) {
@@ -69,6 +69,8 @@ function frame(timestamp) {
   if (elapsedTime >= 0){
     lastTimestampUpdate = timestamp;
     frameCount++;
+    lowlevel.frame(timestamp)
+    debug.frame(timestamp);
     showScreenBuffer();
     showDebugText();
   }
@@ -77,10 +79,7 @@ function frame(timestamp) {
 
 function showScreenBuffer() {
     renderBackground();
-    
-    ctx.fillStyle = "blue";
-    ctx.fillRect(0, 0, screenBuffer.width, screenBuffer.height);
-    ctx.putImageData(screenBuffer, 0, 0);
+    //ctx.putImageData(screenBuffer, 0, 0);
     ctx.putImageData(bgBuffer, 0, 0);
 }
 

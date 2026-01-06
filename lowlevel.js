@@ -9,8 +9,8 @@ export const SCREEN_HEIGHT = 480;
 export const COLUMNS = SCREEN_WIDTH;
 export const SCANLINES = SCREEN_HEIGHT;
 
-export const TILEMAP_H_SIZE = 80;
-export const TILEMAP_V_SIZE = 60;
+export const TILEMAP_H_SIZE = 160;
+export const TILEMAP_V_SIZE = 120;
 
 export const OBJECTS_SIZE = 250;
 export const OBJECT_H_SIZE = 1;
@@ -27,6 +27,8 @@ export const background = setDefaultBackground(TILEMAP_H_SIZE, TILEMAP_V_SIZE);
 export const objects = setDefaultObjects(OBJECTS_SIZE, OBJECT_H_SIZE, OBJECT_V_SIZE);
 export const tiles = new Uint8Array(TILES_SIZE * TILE_H_SIZE * TILE_V_SIZE);
 export const hdma = [];
+
+export let frame = function(timestamp) {};
 
 // ---- TILES ROUTINES ----
 
@@ -79,8 +81,8 @@ export function setHDMA(scanline, palette, bgTransform) {
 
 // ---- INITIALIZATION ROUTINES ----
 
-export function init() {
-    
+export function init(aFrameFunction) {
+    frame = aFrameFunction;    
 }
 
 function setDefaultPalette(size) {
