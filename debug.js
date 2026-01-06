@@ -11,15 +11,16 @@ let bufferBg = null;
 let bufferObjects = null;
 let bufferTiles = null;
 
-export function init(aLowlevel, aBufferBg) {
+export function init(aLowlevel, aBufferBg, aBufferTiles) {
     lowlevel = aLowlevel;
     bufferBg = aBufferBg;
+    bufferTiles = aBufferTiles;
     canvasBg = createCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.TILE_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.TILE_V_SIZE);
     // canvasObjects = createCanvas("objectscanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-    // canvasTiles = createCanvas("tilescanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
+    canvasTiles = createCanvas("tilescanvas", lowlevel.TILES_SIZE * lowlevel.TILE_H_SIZE, lowlevel.TILE_V_SIZE);
     ctxBg = createContext(canvasBg, "lightblue");
     // ctxObjects = createContext(canvasObjects, "darkgray");
-    // ctxTiles = createContext(canvasTiles, "greenyellow");
+    ctxTiles = createContext(canvasTiles, "greenyellow");
 }
 
 function createCanvas(canvasElementName, width, height) {
@@ -56,6 +57,7 @@ export function frame(timestamp) {
     if (timestamp - lastTimestamp >= 100) {
         lastTimestamp = timestamp;
         ctxBg.putImageData(bufferBg, 0, 0);
+        ctxTiles.putImageData(bufferTiles, 0, 0);
     }
 }
 
