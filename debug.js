@@ -1,24 +1,27 @@
 "use strict";
 
 let lowlevel = null;
-let canvasBg = null;
+let canvasDebugBackground = null;
+let ctxDebugBackground = null;
+let canvasFullBackground = null;
+
 let canvasObjects = null;
 let canvasTiles = null;
-let ctxBg = null;
 let ctxObjects = null;
 let ctxTiles = null;
-let bufferBg = null;
 let bufferObjects = null;
 let bufferTiles = null;
 
-export function init(aLowlevel, aBufferBg, aBufferTiles) {
+export function init(aLowlevel, aCanvasFullBackground, aBufferTiles) {
     lowlevel = aLowlevel;
-    bufferBg = aBufferBg;
-    bufferTiles = aBufferTiles;
-    canvasBg = createCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.TILE_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.TILE_V_SIZE);
+    canvasFullBackground = aCanvasFullBackground;
+    canvasDebugBackground = createCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    ctxDebugBackground = createContext(canvasDebugBackground, "lightblue");
+    
     // canvasObjects = createCanvas("objectscanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-    canvasTiles = createCanvas("tilescanvas", lowlevel.TILES_SIZE * lowlevel.TILE_H_SIZE, lowlevel.TILE_V_SIZE);
-    ctxBg = createContext(canvasBg, "lightblue");
+    
+    bufferTiles = aBufferTiles;
+    canvasTiles = createCanvas("tilescanvas", lowlevel.GRAPHICS_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.GRAPHIC_V_SIZE);
     // ctxObjects = createContext(canvasObjects, "darkgray");
     ctxTiles = createContext(canvasTiles, "greenyellow");
 }
@@ -40,7 +43,7 @@ function createContext(canvas, color) {
 }
 
 function createBuffer(w, h) {
-    let buffer = ctxBg.createImageData(w, h);
+    let buffer = ctxDebugBackground.createImageData(w, h);
     buffer.data.fill(255);
     for (let y = 0; y < buffer.height; y++) {
         for (let x = 0; x < buffer.width; x++) {
@@ -54,10 +57,10 @@ function createBuffer(w, h) {
 
 let lastTimestamp = 0;
 export function frame(timestamp) {
-    if (timestamp - lastTimestamp >= 100) {
+    if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
-        ctxBg.putImageData(bufferBg, 0, 0);
-        ctxTiles.putImageData(bufferTiles, 0, 0);
+        ctxDebugBackground.drawImage(canvasFullBackground, 0, 0);
+        //ctxTiles.putImageData(bufferTiles, 0, 0);
     }
 }
 

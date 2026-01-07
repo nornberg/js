@@ -4,21 +4,21 @@ import * as lowlevel from "./lowlevel.js";
 import * as graphics from "./graphics.js";
 
 function setup() {
-  lowlevel.setTile(250, [
-    0,0,0,0,0,0,0,0,
-    0,10,10,10,10,10,10,0,
-    0,10,20,20,20,20,10,0,
-    0,10,20,30,30,20,10,0,
-    0,10,20,30,30,20,10,0,
-    0,10,20,20,20,20,10,0,
-    0,10,10,10,10,10,10,0,
-    0,0,0,0,0,0,0,0,
+  lowlevel.setGraphic(250, [
+    50,90,90,90,90,90,90,90,
+    50,10,10,10,10,10,10,80,
+    50,10,20,20,20,20,10,80,
+    80,10,20,30,30,20,10,80,
+    80,10,20,30,30,20,10,80,
+    80,10,20,20,20,20,10,80,
+    80,10,10,10,10,10,10,80,
+    80,80,80,80,80,80,80,80,
   ]);
   lowlevel.background.tilemap.fill(10);
   lowlevel.setBackgroundTile(10, 10, 250);
   let k = 36;
   for(let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
-    lowlevel.setTile(i, [
+    lowlevel.setGraphic(i, [
       i,i,i,i,i,i,i,i,
       i,i,i,i,i,i,i,i,
       i,i,i,i,i,i,i,i,
