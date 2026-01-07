@@ -57,11 +57,11 @@ function createBuffer(w, h) {
 
 let lastTimestamp = 0;
 export function frame(timestamp) {
-    if (timestamp - lastTimestamp >= 10) {
+    //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
         ctxDebugBackground.drawImage(canvasFullBackground, 0, 0);
         //ctxTiles.putImageData(bufferTiles, 0, 0);
-    }
+    //}
 }
 
 function bufferIndex(x, y, width) {

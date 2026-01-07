@@ -7,9 +7,14 @@ const TEXT_SHADOW = 2;
 let canvasScreen = null;
 let ctxScreen = null;
 
-let bufferFullBackground = null;
 let canvasFullBackground = null;
 let ctxFullBackground = null;
+let bufferFullBackground = null;
+
+let canvasFullBackgroundRotated = null;
+let ctxFullBackgroundRotated = null;
+let bufferFullBackgroundRotated = null;
+
 
 let tilesBuffer = null;
 
@@ -28,7 +33,7 @@ export function init(canvasElementName,aLowlevel) {
     createCanvasScreen(canvasElementName, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
     createCanvasFullBackground();
     createGraphicsBuffer();
-    debug.init(lowlevel, canvasFullBackground, tilesBuffer);
+    debug.init(lowlevel, canvasFullBackgroundRotated, tilesBuffer);
     window.requestAnimationFrame(frame);
 }
 
@@ -49,10 +54,19 @@ function createCanvasScreen(canvasElementName, width, height) {
 
 function createCanvasFullBackground() {
     canvasFullBackground = new OffscreenCanvas(lowlevel.background.tilemapW * lowlevel.GRAPHIC_H_SIZE, lowlevel.background.tilemapH * lowlevel.GRAPHIC_V_SIZE);
-    ctxFullBackground = canvasFullBackground.getContext("2d", { alpha: false, antialias: false, depth: false });
+    ctxFullBackground = canvasFullBackground.getContext("2d", { alpha: false, antialias: false});
     ctxFullBackground.imageSmoothingEnabled = false;
-    bufferFullBackground = ctxFullBackground.createImageData(canvasFullBackground.width, canvasFullBackground.height);
-    bufferFullBackground.data.fill(255);
+//    bufferFullBackground = ctxFullBackground.createImageData(canvasFullBackground.width, canvasFullBackground.height);
+//    bufferFullBackground.data.fill(0);
+    
+    canvasFullBackgroundRotated = new OffscreenCanvas(lowlevel.background.tilemapW * lowlevel.GRAPHIC_H_SIZE, lowlevel.background.tilemapH * lowlevel.GRAPHIC_V_SIZE);
+    ctxFullBackgroundRotated = canvasFullBackgroundRotated.getContext("2d", { alpha: false, antialias: false});
+    ctxFullBackgroundRotated.imageSmoothingEnabled = false;
+//    bufferFullBackgroundRotated = ctxFullBackgroundRotated.createImageData(canvasFullBackgroundRotated.width/2, canvasFullBackgroundRotated.height/2);
+//    bufferFullBackgroundRotated.data.fill(255);
+//    ctxFullBackgroundRotated.putImageData(bufferFullBackgroundRotated, 100, 100);
+//    ctxFullBackgroundRotated.fillStyle = "red";
+//    ctxFullBackgroundRotated.fillRect(100, 100, 200, 200);
 }
 
 function createGraphicsBuffer() {
@@ -60,7 +74,7 @@ function createGraphicsBuffer() {
     tilesBuffer.data.fill(255);
 };
 
-function frame(timestamp) {
+async function frame(timestamp) {
   if (timestamp - lastTimestampFrameCount >= 1000){
     fps = frameCount;
     lastTimestampFrameCount = timestamp;
@@ -72,41 +86,53 @@ function frame(timestamp) {
     lastTimestampUpdate = timestamp;
     frameCount++;
     lowlevel.frame(timestamp)
-    debug.frame(timestamp);
-    updateScreen();
+    //debug.frame(timestamp);
+    await updateScreen(timestamp);
     showDebugText();
   }
   window.requestAnimationFrame(frame);
 };
 
 let scrollX = 0;
-let scrollDir = 1;
-function updateScreen() {
-    renderBackgroundToCanvas(canvasFullBackground, lowlevel.background);
+let scrollY = 0;
+let scrollDir = 10;
+async function updateScreen(timestamp) {
+    renderBackgroundToCanvas(lowlevel.background);
     ctxScreen.clearRect(0, 0, canvasScreen.width, canvasScreen.height);
-    let k = 3.1;
+    let k = 1;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
-        ctxScreen.translate(canvasScreen.width / 2 + scrollX, canvasScreen.height / 4);
-        ctxScreen.rotate(0 * Math.PI / 180);
-        //ctxScreen.scale(k, k);
-        ctxScreen.drawImage(canvasFullBackground, 0, y, canvasScreen.width, 1, k, y*k, canvasScreen.width*k, k);
-        ctxScreen.resetTransform();
-        if (y % 8 === 0){
-            //k += 0.5;
+        ctxFullBackgroundRotated.translate(canvasScreen.width / 2, canvasScreen.height / 2);
+        ctxFullBackgroundRotated.scale(k, k);
+        //ctxFullBackgroundRotated.rotate(22 * Math.PI / 180);
+        ctxFullBackgroundRotated.drawImage(canvasFullBackground, 0, 0);
+        ctxFullBackgroundRotated.resetTransform();
+        
+        ctxScreen.drawImage(canvasFullBackgroundRotated, scrollX, scrollY+y, canvasScreen.width, 1, 0, y, canvasScreen.width, 1);
+
+        ctxFullBackgroundRotated.fillStyle = "white";
+        ctxFullBackgroundRotated.fillRect(scrollX, scrollY+y, 640, 1);
+        ctxFullBackgroundRotated.strokeStyle = "white";
+        ctxFullBackgroundRotated.strokeRect(scrollX, scrollY, 640, 480);
+        
+        if (y % 8 == 0){
+            k += 0.5;
         }
+        
+        debug.frame(timestamp);
+        
+        await sleep(0);
     }
-    scrollX += scrollDir;
-    if (scrollX > 318 || scrollX < -320){
+    //scrollX += scrollDir;
+    if (scrollX > 104 + 80 || scrollX < 104 - 80) {
         scrollDir = -scrollDir;
     }
 }
 
-function renderBackgroundToCanvas(canvas, bg) {
-    let context = canvas.getContext("2d", { alpha: false, antialias: false, depth: false });
-    context.imageSmoothingEnabled = false;
-    let buffer = context.createImageData(canvas.width, canvas.height);
+function renderBackgroundToCanvas(bg) {
+    let buffer = ctxFullBackground.createImageData(canvasFullBackground.width, canvasFullBackground.height);
+    buffer.data.fill(255);
     renderBackgroundToBuffer(buffer, bg);
-    context.putImageData(buffer, 0, 0);
+    ctxFullBackground.putImageData(buffer, 0, 0);
 }
 function renderBackgroundToBuffer(buffer, bg) {
     for (let ty = 0; ty < bg.tilemapH; ty++) {
@@ -145,4 +171,8 @@ function showDebugText() {
     ctxScreen.fillText(s1, 10, 10);
     ctxScreen.fillText(s2, canvasScreen.width - ctxScreen.measureText(s2).width - 10, 10);
     ctxScreen.fillText(debug_str, 10, 450);
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
