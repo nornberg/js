@@ -33,7 +33,7 @@ export function init(canvasElementName,aLowlevel) {
     createCanvasScreen(canvasElementName, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
     createCanvasFullBackground();
     createGraphicsBuffer();
-    debug.init(lowlevel, canvasFullBackgroundRotated, tilesBuffer);
+    debug.init(lowlevel, canvasFullBackgroundRotated, canvasFullBackground);
     window.requestAnimationFrame(frame);
 }
 
@@ -74,7 +74,7 @@ function createGraphicsBuffer() {
     tilesBuffer.data.fill(255);
 };
 
-async function frame(timestamp) {
+function frame(timestamp) {
   if (timestamp - lastTimestampFrameCount >= 1000){
     fps = frameCount;
     lastTimestampFrameCount = timestamp;
@@ -87,60 +87,54 @@ async function frame(timestamp) {
     frameCount++;
     lowlevel.frame(timestamp)
     //debug.frame(timestamp);
-    await updateScreen(timestamp);
+    updateScreen(timestamp);
     showDebugText();
   }
   window.requestAnimationFrame(frame);
 };
 
-let scrollX = 0;
-let scrollY = 0;
-let scrollDir = 10;
-let angle = 0;
-async function updateScreen(timestamp) {
+let bgTransform = {
+    scrollX: 0,
+    scrollY: 0,
+    centerX: 0,
+    centerY: 0,
+    scaleX: 1,
+    scaleY: 1,
+    angle: 0,
+};
+
+function updateScreen(timestamp) {
     renderBackgroundToCanvas(lowlevel.background);
     ctxScreen.clearRect(0, 0, canvasScreen.width, canvasScreen.height);
+    ctxFullBackground.strokeStyle = "red";
+    ctxFullBackgroundRotated.fillStyle = "white";
+    ctxFullBackgroundRotated.strokeStyle = "white";
+
     let k = 1;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
-        ctxFullBackgroundRotated.fillStyle = "white";
-        ctxFullBackgroundRotated.strokeStyle = "white";
-        ctxFullBackgroundRotated.lineWidth = 1;
+        if (lowlevel.hdma[y]) {
+            bgTransform = {
+                ...bgTransform,
+                ...lowlevel.hdma[y]
+            }
+        }
+
         ctxFullBackgroundRotated.clearRect(0, 0, canvasFullBackgroundRotated.width, canvasFullBackgroundRotated.height);
-
-        ctxFullBackgroundRotated.translate(lowlevel.SCREEN_CENTER_X, lowlevel.SCREEN_CENTER_Y);
-        ctxFullBackgroundRotated.scale(0.4 * k, 0.4 * k);
-        //ctxFullBackgroundRotated.rotate(angle * Math.PI / 180);
-        ctxFullBackgroundRotated.translate(-lowlevel.SCREEN_CENTER_X, -lowlevel.SCREEN_CENTER_Y);
-
+        ctxFullBackgroundRotated.translate(bgTransform.centerX, bgTransform.centerY);
+        ctxFullBackgroundRotated.scale(bgTransform.scaleX, bgTransform.scaleY);
+        ctxFullBackgroundRotated.rotate(bgTransform.angle * Math.PI / 180);
+        ctxFullBackgroundRotated.translate(-bgTransform.centerX, -bgTransform.centerY);
         ctxFullBackgroundRotated.drawImage(canvasFullBackground, 0, 0);
-        ctxFullBackgroundRotated.strokeRect(lowlevel.SCREEN_CENTER_X-9, lowlevel.SCREEN_CENTER_Y-9, 10, 10);
         ctxFullBackgroundRotated.resetTransform();
         
-        ctxScreen.drawImage(canvasFullBackgroundRotated, scrollX, scrollY+y, canvasScreen.width, 1, 0, y, canvasScreen.width, 1);
+        ctxScreen.drawImage(canvasFullBackgroundRotated, bgTransform.scrollX, bgTransform.scrollY + y, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
 
-        ctxFullBackgroundRotated.fillRect(scrollX, scrollY+y, 640, 1);
-        ctxFullBackgroundRotated.strokeRect(scrollX, scrollY, 640, 480);
-        
-        if (y % 8 == 0){
-            k += 0.5;
-        }
+        //ctxFullBackgroundRotated.fillRect(bgTransform.scrollX, bgTransform.scrollY + y, lowlevel.SCREEN_WIDTH, 1);
+        ctxFullBackgroundRotated.strokeRect(bgTransform.scrollX, bgTransform.scrollY, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
+        ctxFullBackground.strokeRect(bgTransform.centerX-5, bgTransform.centerY-5, 10,10);
         
         debug.frame(timestamp);
-
-        angle ++;
-    if (angle >= 360) {
-        angle = 0;
-    }
-        
-        await sleep(0);
-    }
-    //scrollX += scrollDir;
-    if (scrollX > 104 + 80 || scrollX < 104 - 80) {
-        scrollDir = -scrollDir;
-    }
-    angle ++;
-    if (angle >= 360) {
-        angle = 0;
+        //await sleep(50);
     }
 }
 
@@ -150,6 +144,7 @@ function renderBackgroundToCanvas(bg) {
     renderBackgroundToBuffer(buffer, bg);
     ctxFullBackground.putImageData(buffer, 0, 0);
 }
+
 function renderBackgroundToBuffer(buffer, bg) {
     for (let ty = 0; ty < bg.tilemapH; ty++) {
         for (let tx = 0; tx < bg.tilemapW; tx++) {

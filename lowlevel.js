@@ -29,7 +29,17 @@ export const palette = setDefaultPalette(PALETTE_SIZE);
 export const background = setDefaultBackground(TILEMAP_H_SIZE, TILEMAP_V_SIZE);
 export const objects = setDefaultObjects(OBJECTS_SIZE, OBJECT_H_SIZE, OBJECT_V_SIZE);
 export const graphics = new Uint8Array(GRAPHICS_SIZE * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE);
-export const hdma = [];
+export const hdma = [
+    {
+        scrollX: 0,
+        scrollY: 0,
+        centerX: 0,
+        centerY: 0,
+        scaleX: 1,
+        scaleY: 1,
+        angle: 0,
+    }
+];
 
 export let frame = function(timestamp) {};
 
@@ -80,14 +90,19 @@ export function setBackgroundTransform(tx, ty, cx, cy, sx, sy, ra) {
 // ---- HDMA ROUTINES ----
 
 export function clearHDMA() {
-    hdma = [];
+    hdma = [{
+        scrollX: 0,
+        scrollY: 0,
+        centerX: 0,
+        centerY: 0,
+        scaleX: 1,
+        scaleY: 1,
+        angle: 0,
+    }];
 }
 
-export function setHDMA(scanline, palette, bgTransform) {
-    hdma[scanline] = {
-        palette: palette,
-        bgTransform: bgTransform,
-    };
+export function setHDMA(scanline, hdmaData) {
+    hdma[scanline] = hdmaData;
 }
 
 // ---- INITIALIZATION ROUTINES ----

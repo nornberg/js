@@ -17,6 +17,7 @@ function setup() {
   lowlevel.background.tilemap.fill(10);
   lowlevel.setBackgroundTile(39, 29, 250);
   lowlevel.setBackgroundTile(79, 59, 250);
+  lowlevel.setBackgroundTile(79, 1, 250);
   let k = 36;
   for(let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
     lowlevel.setGraphic(i, [
@@ -31,6 +32,7 @@ function setup() {
     ]);
     lowlevel.setBackgroundTile(1 + i % k, 1 + Math.trunc(i / k), i);
   }
+  lowlevel.setBackgroundTile(18, 1, 250);
   for (let y = 0; y < lowlevel.background.tilemapH; y++) {
       lowlevel.setBackgroundTile(0, y, 250);
       lowlevel.setBackgroundTile(lowlevel.background.tilemapW - 1, y, 250);
@@ -39,6 +41,24 @@ function setup() {
       lowlevel.setBackgroundTile(x, 0, 250);
       lowlevel.setBackgroundTile(x, lowlevel.background.tilemapH - 1, 250); 
   };
+  lowlevel.setHDMA(0,
+  {
+      scrollX: 0,
+      scrollY: 0,
+      centerX: 18 * 8 + 4,
+      centerY: 8 + 4,
+      scaleX: 1,
+      scaleY: 1,
+      angle: 0,
+  });
+  for (let y = 1; y < lowlevel.SCANLINES; y++) {
+    let k = y / (lowlevel.SCANLINES - 1);
+      lowlevel.setHDMA(y,
+        {
+            scaleX: 1 + k * 7,
+            scaleY: 1 + k * 7,            
+        });
+  }
 }
 
 let pos = {x: 10, y: 20};
@@ -56,6 +76,7 @@ function frame(timestamp) {
   lowlevel.setBackgroundTile(pos.x+1, pos.y, 250);
   lowlevel.setBackgroundTile(pos.x, pos.y+1, 250);
   lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 250);
+  lowlevel.hdma[0].angle = (timestamp / 50) % 360;
 }
 
 function main() {

@@ -2,8 +2,11 @@
 
 let lowlevel = null;
 let canvasDebugBackground = null;
+let canvasDebugBackgroundRotated = null;
 let ctxDebugBackground = null;
+let ctxDebugBackgroundRotated = null;
 let canvasFullBackground = null;
+let canvasFullBackgroundRotated = null;
 
 let canvasObjects = null;
 let canvasTiles = null;
@@ -12,18 +15,15 @@ let ctxTiles = null;
 let bufferObjects = null;
 let bufferTiles = null;
 
-export function init(aLowlevel, aCanvasFullBackground, aBufferTiles) {
+export function init(aLowlevel, aCanvasFullBackgroundRotated, aCanvasFullBackground) {
     lowlevel = aLowlevel;
     canvasFullBackground = aCanvasFullBackground;
-    canvasDebugBackground = createCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    canvasFullBackgroundRotated = aCanvasFullBackgroundRotated;
+    
+    canvasDebugBackgroundRotated = createCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    canvasDebugBackground = createCanvas("objectscanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    ctxDebugBackgroundRotated = createContext(canvasDebugBackgroundRotated, "lightGreen");
     ctxDebugBackground = createContext(canvasDebugBackground, "lightblue");
-    
-    // canvasObjects = createCanvas("objectscanvas", lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-    
-    bufferTiles = aBufferTiles;
-    canvasTiles = createCanvas("tilescanvas", lowlevel.GRAPHICS_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.GRAPHIC_V_SIZE);
-    // ctxObjects = createContext(canvasObjects, "darkgray");
-    ctxTiles = createContext(canvasTiles, "greenyellow");
 }
 
 function createCanvas(canvasElementName, width, height) {
@@ -59,8 +59,8 @@ let lastTimestamp = 0;
 export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
+        ctxDebugBackgroundRotated.drawImage(canvasFullBackgroundRotated, 0, 0);
         ctxDebugBackground.drawImage(canvasFullBackground, 0, 0);
-        //ctxTiles.putImageData(bufferTiles, 0, 0);
     //}
 }
 
