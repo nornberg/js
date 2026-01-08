@@ -15,7 +15,8 @@ function setup() {
     80,80,80,80,80,80,80,80,
   ]);
   lowlevel.background.tilemap.fill(10);
-  lowlevel.setBackgroundTile(10, 10, 250);
+  lowlevel.setBackgroundTile(39, 29, 250);
+  lowlevel.setBackgroundTile(79, 59, 250);
   let k = 36;
   for(let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
     lowlevel.setGraphic(i, [

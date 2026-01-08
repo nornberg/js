@@ -96,22 +96,29 @@ async function frame(timestamp) {
 let scrollX = 0;
 let scrollY = 0;
 let scrollDir = 10;
+let angle = 0;
 async function updateScreen(timestamp) {
     renderBackgroundToCanvas(lowlevel.background);
     ctxScreen.clearRect(0, 0, canvasScreen.width, canvasScreen.height);
     let k = 1;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
-        ctxFullBackgroundRotated.translate(canvasScreen.width / 2, canvasScreen.height / 2);
-        ctxFullBackgroundRotated.scale(k, k);
-        //ctxFullBackgroundRotated.rotate(22 * Math.PI / 180);
+        ctxFullBackgroundRotated.fillStyle = "white";
+        ctxFullBackgroundRotated.strokeStyle = "white";
+        ctxFullBackgroundRotated.lineWidth = 1;
+        ctxFullBackgroundRotated.clearRect(0, 0, canvasFullBackgroundRotated.width, canvasFullBackgroundRotated.height);
+
+        ctxFullBackgroundRotated.translate(lowlevel.SCREEN_CENTER_X, lowlevel.SCREEN_CENTER_Y);
+        ctxFullBackgroundRotated.scale(0.4 * k, 0.4 * k);
+        //ctxFullBackgroundRotated.rotate(angle * Math.PI / 180);
+        ctxFullBackgroundRotated.translate(-lowlevel.SCREEN_CENTER_X, -lowlevel.SCREEN_CENTER_Y);
+
         ctxFullBackgroundRotated.drawImage(canvasFullBackground, 0, 0);
+        ctxFullBackgroundRotated.strokeRect(lowlevel.SCREEN_CENTER_X-9, lowlevel.SCREEN_CENTER_Y-9, 10, 10);
         ctxFullBackgroundRotated.resetTransform();
         
         ctxScreen.drawImage(canvasFullBackgroundRotated, scrollX, scrollY+y, canvasScreen.width, 1, 0, y, canvasScreen.width, 1);
 
-        ctxFullBackgroundRotated.fillStyle = "white";
         ctxFullBackgroundRotated.fillRect(scrollX, scrollY+y, 640, 1);
-        ctxFullBackgroundRotated.strokeStyle = "white";
         ctxFullBackgroundRotated.strokeRect(scrollX, scrollY, 640, 480);
         
         if (y % 8 == 0){
@@ -119,12 +126,21 @@ async function updateScreen(timestamp) {
         }
         
         debug.frame(timestamp);
+
+        angle ++;
+    if (angle >= 360) {
+        angle = 0;
+    }
         
         await sleep(0);
     }
     //scrollX += scrollDir;
     if (scrollX > 104 + 80 || scrollX < 104 - 80) {
         scrollDir = -scrollDir;
+    }
+    angle ++;
+    if (angle >= 360) {
+        angle = 0;
     }
 }
 

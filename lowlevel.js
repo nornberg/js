@@ -20,6 +20,9 @@ export const GRAPHICS_SIZE = 1024;
 export const GRAPHIC_H_SIZE = 8;
 export const GRAPHIC_V_SIZE = 8;
 
+export const SCREEN_CENTER_X = SCREEN_WIDTH / 2;
+export const SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;
+
 // ---- TABLES ----
 
 export const palette = setDefaultPalette(PALETTE_SIZE);
