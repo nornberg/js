@@ -60,7 +60,13 @@ export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
         ctxDebugBackgroundRotated.drawImage(canvasFullBackgroundRotated, 0, 0);
+        
         ctxDebugBackground.drawImage(canvasFullBackground, 0, 0);
+        ctxDebugBackground.strokeStyle = "yellow";
+        ctxDebugBackground.beginPath();
+        ctxDebugBackground.rect(lowlevel.registers.scrollX, lowlevel.registers.scrollY, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
+        ctxDebugBackground.arc(lowlevel.registers.centerX, lowlevel.registers.centerY, lowlevel.GRAPHIC_H_SIZE, 0, 360);
+        ctxDebugBackground.stroke();
     //}
 }
 

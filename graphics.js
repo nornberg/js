@@ -82,7 +82,7 @@ function frame(timestamp) {
   }
   let elapsedTime = timestamp - lastTimestampUpdate;
   // TODO: fazer o elapsedTime ser independente da limitação de fps abaixo.
-  if (elapsedTime >= 0){
+  if (elapsedTime >= 250){
     lastTimestampUpdate = timestamp;
     frameCount++;
     lowlevel.frame(timestamp)
@@ -91,16 +91,6 @@ function frame(timestamp) {
     showDebugText();
   }
   window.requestAnimationFrame(frame);
-};
-
-let bgTransform = {
-    scrollX: 0,
-    scrollY: 0,
-    centerX: 0,
-    centerY: 0,
-    scaleX: 1,
-    scaleY: 1,
-    angle: 0,
 };
 
 function updateScreen(timestamp) {
@@ -113,11 +103,12 @@ function updateScreen(timestamp) {
     let k = 1;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
         if (lowlevel.hdma[y]) {
-            bgTransform = {
-                ...bgTransform,
-                ...lowlevel.hdma[y]
-            }
+            // lowlevel.registers = {
+            //     ...lowlevel.registers,
+            //     ...lowlevel.hdma[y]
+            // }
         }
+        let bgTransform = lowlevel.registers;
 
         ctxFullBackgroundRotated.clearRect(0, 0, canvasFullBackgroundRotated.width, canvasFullBackgroundRotated.height);
         ctxFullBackgroundRotated.translate(bgTransform.centerX, bgTransform.centerY);
@@ -130,8 +121,6 @@ function updateScreen(timestamp) {
         ctxScreen.drawImage(canvasFullBackgroundRotated, bgTransform.scrollX, bgTransform.scrollY + y, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
 
         //ctxFullBackgroundRotated.fillRect(bgTransform.scrollX, bgTransform.scrollY + y, lowlevel.SCREEN_WIDTH, 1);
-        ctxFullBackgroundRotated.strokeRect(bgTransform.scrollX, bgTransform.scrollY, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-        ctxFullBackground.strokeRect(bgTransform.centerX-5, bgTransform.centerY-5, 10,10);
         
         debug.frame(timestamp);
         //await sleep(50);

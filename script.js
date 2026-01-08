@@ -55,8 +55,8 @@ function setup() {
     let k = y / (lowlevel.SCANLINES - 1);
       lowlevel.setHDMA(y,
         {
-            scaleX: 1 + k * 7,
-            scaleY: 1 + k * 7,            
+            scaleX: 1 + k * 17,
+            scaleY: 1 + k * 17,            
         });
   }
 }
