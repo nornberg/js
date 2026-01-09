@@ -53,6 +53,8 @@ function setup() {
       centerY: 8 + 4,
       scaleX: 1,
       scaleY: 1,
+      shearX: 0,
+      shearY: 0,
       angle: 0,
   });
   for (let y = 1; y < lowlevel.SCANLINES; y++) {
@@ -65,20 +67,20 @@ function setup() {
   }
   window.onkeydown = function(e) {
     let shiftDown = e.shiftKey; 
-    let field = shiftDown ? "center" : "scroll";
-    console.log(shiftDown, field, e.key);
+    let ctrlKey = e.ctrlKey;
+    let field = shiftDown ? "center" : ctrlKey ? "shear" : "scroll";
 
     if (e.key === "ArrowUp") {
-      lowlevel.registers[field + "Y"] -= 8;
+      lowlevel.registers[field + "Y"] -= 1;
     } else if (e.key === "ArrowDown") {
-      lowlevel.registers[field + "Y"] += 8;
+      lowlevel.registers[field + "Y"] += 1;
     } else if (e.key === "ArrowLeft") {
-      lowlevel.registers[field + "X"] -= 8;
+      lowlevel.registers[field + "X"] -= 1;
     } else if (e.key === "ArrowRight") {
-      lowlevel.registers[field + "X"] += 8;
+      lowlevel.registers[field + "X"] += 1;
     } else if (e.key === "PageUp") {
       if (shiftDown) {
-        lowlevel.registers.angle += 5;
+        lowlevel.registers.angle += 1;
       } else {
         if (lowlevel.registers.scaleX < 1.0) {
           lowlevel.registers.scaleX += 0.1;
@@ -90,7 +92,7 @@ function setup() {
       }
     } else if (e.key === "PageDown") {
       if (shiftDown) {
-        lowlevel.registers.angle -= 5;
+        lowlevel.registers.angle -= 1;
       } else {
         if (lowlevel.registers.scaleX <= 1.0) {
           lowlevel.registers.scaleX -= 0.1;
@@ -100,7 +102,7 @@ function setup() {
           lowlevel.registers.scaleY -= 0.5;
         }
       }
-    }
+    } else return true;
     return false;
   };  
 }
