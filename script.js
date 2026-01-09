@@ -59,6 +59,37 @@ function setup() {
             scaleY: 1 + k * 17,            
         });
   }
+  window.onkeydown = function(e) {
+    let ctrlDown = e.ctrlKey || e.metaKey; 
+    let field = ctrlDown ? "center" : "scroll";
+
+    if (e.key === "ArrowUp") {
+      lowlevel.registers[field + "Y"] -= 8;
+    } else if (e.key === "ArrowDown") {
+      lowlevel.registers[field + "Y"] += 8;
+    } else if (e.key === "ArrowLeft") {
+      lowlevel.registers[field + "X"] -= 8;
+    } else if (e.key === "ArrowRight") {
+      lowlevel.registers[field + "X"] += 8;
+    } else if (e.key === "PageUp") {
+      if (lowlevel.registers.scaleX < 1.0) {
+        lowlevel.registers.scaleX += 0.1;
+        lowlevel.registers.scaleY += 0.1;
+      } else {
+        lowlevel.registers.scaleX += 0.5;
+        lowlevel.registers.scaleY += 0.5;
+      }
+    } else if (e.key === "PageDown") {
+      if (lowlevel.registers.scaleX <= 1.0) {
+        lowlevel.registers.scaleX -= 0.1;
+        lowlevel.registers.scaleY -= 0.1;
+      } else {
+        lowlevel.registers.scaleX -= 0.5;
+        lowlevel.registers.scaleY -= 0.5;
+      }
+    }
+    return false;
+  };  
 }
 
 let pos = {x: 10, y: 20};
