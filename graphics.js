@@ -54,7 +54,7 @@ function createCanvasScreen(canvasElementName, width, height) {
 
 function createCanvasFullBackground() {
     canvasFullBackground = new OffscreenCanvas(lowlevel.background.tilemapW * lowlevel.GRAPHIC_H_SIZE, lowlevel.background.tilemapH * lowlevel.GRAPHIC_V_SIZE);
-    ctxFullBackground = canvasFullBackground.getContext("2d", { alpha: false, antialias: false});
+    ctxFullBackground = canvasFullBackground.getContext("2d", { alpha: false, antialias: false, willReadFrequently: true});
     ctxFullBackground.imageSmoothingEnabled = false;
 //    bufferFullBackground = ctxFullBackground.createImageData(canvasFullBackground.width, canvasFullBackground.height);
 //    bufferFullBackground.data.fill(0);
@@ -95,10 +95,14 @@ function frame(timestamp) {
 
 function updateScreen(timestamp) {
     renderBackgroundToCanvas(lowlevel.background);
-    ctxScreen.clearRect(0, 0, canvasScreen.width, canvasScreen.height);
+    ctxScreen.fillStyle = "red";
+    ctxScreen.fillRect(0, 0, canvasScreen.width, canvasScreen.height);
     ctxFullBackground.strokeStyle = "red";
     ctxFullBackgroundRotated.fillStyle = "white";
     ctxFullBackgroundRotated.strokeStyle = "white";
+
+    let bufferFullBackground = ctxFullBackground.getImageData(0, 0, canvasFullBackground.width, canvasFullBackground.height);
+    let bufferLine = ctxScreen.createImageData(canvasScreen.width, 1);
 
     let k = 1;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
@@ -110,16 +114,45 @@ function updateScreen(timestamp) {
         }
         let bgTransform = lowlevel.registers;
 
-        ctxFullBackgroundRotated.clearRect(0, 0, canvasFullBackgroundRotated.width, canvasFullBackgroundRotated.height);
-        ctxFullBackgroundRotated.translate(canvasFullBackgroundRotated.width/2 + bgTransform.centerX, canvasFullBackgroundRotated.height/2 + bgTransform.centerY);
-        ctxFullBackgroundRotated.rotate(bgTransform.angle * Math.PI / 180);
-        ctxFullBackgroundRotated.scale(bgTransform.scaleX, bgTransform.scaleY);
-        ctxFullBackgroundRotated.drawImage(canvasFullBackground, -bgTransform.centerX, -bgTransform.centerY);
-        ctxFullBackgroundRotated.resetTransform();
-        
-        ctxScreen.drawImage(canvasFullBackgroundRotated, canvasFullBackgroundRotated.width/4-bgTransform.scrollX, canvasFullBackgroundRotated.height/4+y-bgTransform.scrollY, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
+        // ctxFullBackgroundRotated.clearRect(0, 0, canvasFullBackgroundRotated.width, canvasFullBackgroundRotated.height);
+        // ctxFullBackgroundRotated.translate(canvasFullBackgroundRotated.width/2 + bgTransform.centerX, canvasFullBackgroundRotated.height/2 + bgTransform.centerY);
+        // ctxFullBackgroundRotated.rotate(bgTransform.angle * Math.PI / 180);
+        // ctxFullBackgroundRotated.scale(bgTransform.scaleX, bgTransform.scaleY);
+        // ctxFullBackgroundRotated.drawImage(canvasFullBackground, -bgTransform.centerX, -bgTransform.centerY);
+        // ctxFullBackgroundRotated.resetTransform();
+        // ctxScreen.drawImage(canvasFullBackgroundRotated, canvasFullBackgroundRotated.width/4-bgTransform.scrollX, canvasFullBackgroundRotated.height/4+y-bgTransform.scrollY, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
 
-        //ctxFullBackgroundRotated.fillRect(bgTransform.scrollX, bgTransform.scrollY + y, lowlevel.SCREEN_WIDTH, 1);
+        let theta = bgTransform.angle * Math.PI / 180;
+        let cos = Math.cos(theta);
+        let sin = Math.sin(theta);
+        let a = bgTransform.scaleX;
+        let b = bgTransform.shearY;
+        let c = bgTransform.shearX;
+        let d = bgTransform.scaleY;
+        let h = bgTransform.scrollX / lowlevel.SCREEN_WIDTH;
+        let v = bgTransform.scrollY / lowlevel.SCREEN_HEIGHT;
+        let x0 = bgTransform.centerX / lowlevel.SCREEN_WIDTH;
+        let y0 = bgTransform.centerY / lowlevel.SCREEN_HEIGHT;
+        let yi = y / lowlevel.SCREEN_HEIGHT;
+        for (let x = 0; x < lowlevel.SCREEN_WIDTH * 4; x++) {
+            let xi = x / lowlevel.SCREEN_WIDTH;
+            
+            let xx = Math.round(( (yi+v-y0) * b + (xi+h-x0) / a + x0) * lowlevel.SCREEN_WIDTH);
+            let yy = Math.round(( (xi+h-x0) * c + (yi+v-y0) / d + y0) * lowlevel.SCREEN_HEIGHT);
+
+            if (xx >= 0 && xx < bufferFullBackground.width && yy >= 0 && yy < bufferFullBackground.height) {
+                bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 0] = bufferFullBackground.data[bufferIndex(xx, yy, bufferFullBackground.width) + 0];
+                bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 1] = bufferFullBackground.data[bufferIndex(xx, yy, bufferFullBackground.width) + 1];
+                bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 2] = bufferFullBackground.data[bufferIndex(xx, yy, bufferFullBackground.width) + 2];
+            } else {
+                bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 0] = 50;
+                bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 1] = 50;
+                bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 2] = 50;                
+            }
+            bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 3] = 255;
+        }
+        ctxScreen.putImageData(bufferLine, 0, y);
+        //ctxScreen.drawImage(canvasFullBackground, 0-bgTransform.scrollX, y-bgTransform.scrollY, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
         
         debug.frame(timestamp);
         //await sleep(50);
