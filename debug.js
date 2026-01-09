@@ -84,10 +84,14 @@ export function frame(timestamp) {
         ctxDebugBackground.closePath();
         ctxDebugBackground.stroke();
 
-        let debug_str = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY}) ${lowlevel.registers.scaleX.toFixed(2)}x${lowlevel.registers.scaleY.toFixed(2)} ${lowlevel.registers.angle.toFixed(2)}º`;
+        let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
+        let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(0)}x${lowlevel.registers.scaleY.toFixed(0)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
+        let debug_line_3 = `${lowlevel.registers.angle.toFixed(2)}º`;
         ctxDebugBackground.fillStyle = "white";
         ctxDebugBackground.font = "24px monospace";
-        ctxDebugBackground.fillText(debug_str, 10, 500);
+        ctxDebugBackground.fillText(debug_line_1, 10, 500);
+        ctxDebugBackground.fillText(debug_line_2, 10, 530);
+        ctxDebugBackground.fillText(debug_line_3, 10, 560);
     //}
 }
 
