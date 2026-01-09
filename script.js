@@ -15,6 +15,10 @@ function setup() {
     80,80,80,80,80,80,80,80,
   ]);
   lowlevel.background.tilemap.fill(10);
+  lowlevel.setBackgroundTile(18, 7, 250);
+  lowlevel.setBackgroundTile(19, 7, 250);
+  lowlevel.setBackgroundTile(18, 8, 250);
+  lowlevel.setBackgroundTile(19, 8, 250);
   lowlevel.setBackgroundTile(39, 29, 250);
   lowlevel.setBackgroundTile(79, 59, 250);
   lowlevel.setBackgroundTile(79, 1, 250);
@@ -60,8 +64,9 @@ function setup() {
         });
   }
   window.onkeydown = function(e) {
-    let ctrlDown = e.ctrlKey || e.metaKey; 
-    let field = ctrlDown ? "center" : "scroll";
+    let shiftDown = e.shiftKey; 
+    let field = shiftDown ? "center" : "scroll";
+    console.log(shiftDown, field, e.key);
 
     if (e.key === "ArrowUp") {
       lowlevel.registers[field + "Y"] -= 8;
@@ -72,20 +77,28 @@ function setup() {
     } else if (e.key === "ArrowRight") {
       lowlevel.registers[field + "X"] += 8;
     } else if (e.key === "PageUp") {
-      if (lowlevel.registers.scaleX < 1.0) {
-        lowlevel.registers.scaleX += 0.1;
-        lowlevel.registers.scaleY += 0.1;
+      if (shiftDown) {
+        lowlevel.registers.angle += 5;
       } else {
-        lowlevel.registers.scaleX += 0.5;
-        lowlevel.registers.scaleY += 0.5;
+        if (lowlevel.registers.scaleX < 1.0) {
+          lowlevel.registers.scaleX += 0.1;
+          lowlevel.registers.scaleY += 0.1;
+        } else {
+          lowlevel.registers.scaleX += 0.5;
+          lowlevel.registers.scaleY += 0.5;
+        }
       }
     } else if (e.key === "PageDown") {
-      if (lowlevel.registers.scaleX <= 1.0) {
-        lowlevel.registers.scaleX -= 0.1;
-        lowlevel.registers.scaleY -= 0.1;
+      if (shiftDown) {
+        lowlevel.registers.angle -= 5;
       } else {
-        lowlevel.registers.scaleX -= 0.5;
-        lowlevel.registers.scaleY -= 0.5;
+        if (lowlevel.registers.scaleX <= 1.0) {
+          lowlevel.registers.scaleX -= 0.1;
+          lowlevel.registers.scaleY -= 0.1;
+        } else {
+          lowlevel.registers.scaleX -= 0.5;
+          lowlevel.registers.scaleY -= 0.5;
+        }
       }
     }
     return false;
