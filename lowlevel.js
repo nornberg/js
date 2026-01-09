@@ -16,33 +16,56 @@ export const OBJECTS_SIZE = 250;
 export const OBJECT_H_SIZE = 1;
 export const OBJECT_V_SIZE = 1;
 
-export const TILES_SIZE = 1024;
-export const TILE_H_SIZE = 8;
-export const TILE_V_SIZE = 8;
+export const GRAPHICS_SIZE = 1024;
+export const GRAPHIC_H_SIZE = 8;
+export const GRAPHIC_V_SIZE = 8;
+
+export const SCREEN_CENTER_X = SCREEN_WIDTH / 2;
+export const SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;
 
 // ---- TABLES ----
 
 export const palette = setDefaultPalette(PALETTE_SIZE);
 export const background = setDefaultBackground(TILEMAP_H_SIZE, TILEMAP_V_SIZE);
 export const objects = setDefaultObjects(OBJECTS_SIZE, OBJECT_H_SIZE, OBJECT_V_SIZE);
-export const tiles = new Uint8Array(TILES_SIZE * TILE_H_SIZE * TILE_V_SIZE);
+export const graphics = new Uint8Array(GRAPHICS_SIZE * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE);
+export let registers = {
+    scrollX: 0,
+    scrollY: 0,
+    centerX: 0,
+    centerY: 0,   
+    scaleX: 1,
+    scaleY: 1,
+    shearX: 0,
+    shearY: 0,
+    angle: 0,
+    solidColor: 217,
+};
 export const hdma = [];
 
 export let frame = function(timestamp) {};
 
-// ---- TILES ROUTINES ----
+// ---- GRAPHICS ROUTINES ----
 
-export function setTile(tileIdx, tileData) {
-    let startIdx = tileIdx * TILE_H_SIZE * TILE_V_SIZE;
-    for (let i = 0; i < TILE_H_SIZE * TILE_V_SIZE; i++) {
-        tiles[startIdx + i] = tileData[i];
+export function setGraphic(graphicIndex, graphicData) {
+    let startIdx = graphicIndex * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE;
+    for (let i = 0; i < GRAPHIC_H_SIZE * GRAPHIC_V_SIZE; i++) {
+        graphics[startIdx + i] = graphicData[i];
     }
 }
 
-export function setTilePixel(tileIdx, x, y, value) {
-    let startIdx = tileIdx * TILE_H_SIZE * TILE_V_SIZE;
-    let pixelIdx = startIdx + y * TILE_H_SIZE + x;
-    tiles[pixelIdx] = value;
+export function getGraphic(graphicIndex) {
+    let graphicData = [];
+    for (let i = 0; i < GRAPHIC_H_SIZE * GRAPHIC_V_SIZE; i++) {
+        graphicData[i] = graphics[graphicIndex * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE + i];
+    }
+    return graphicData;
+}
+
+export function setGraphicPixel(graphicIdx, x, y, value) {
+    let startIdx = graphicIdx * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE;
+    let pixelIdx = startIdx + y * GRAPHIC_H_SIZE + x;
+    graphics[pixelIdx] = value;
 }
 
 // ---- BACKGROUND ROUTINES ----
@@ -69,14 +92,19 @@ export function setBackgroundTransform(tx, ty, cx, cy, sx, sy, ra) {
 // ---- HDMA ROUTINES ----
 
 export function clearHDMA() {
-    hdma = [];
+    hdma = [{
+        scrollX: 0,
+        scrollY: 0,
+        centerX: 0,
+        centerY: 0,
+        scaleX: 1,
+        scaleY: 1,
+        angle: 0,
+    }];
 }
 
-export function setHDMA(scanline, palette, bgTransform) {
-    hdma[scanline] = {
-        palette: palette,
-        bgTransform: bgTransform,
-    };
+export function setHDMA(scanline, hdmaData) {
+    hdma[scanline] = hdmaData;
 }
 
 // ---- INITIALIZATION ROUTINES ----
