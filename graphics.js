@@ -136,9 +136,12 @@ function updateScreen(timestamp) {
         let yi = y / lowlevel.SCREEN_HEIGHT;
         for (let x = 0; x < lowlevel.SCREEN_WIDTH * 4; x++) {
             let xi = x / lowlevel.SCREEN_WIDTH;
-            
-            let xx = Math.round(( (yi+v-y0) * b + (xi+h-x0) / a + x0) * lowlevel.SCREEN_WIDTH);
-            let yy = Math.round(( (xi+h-x0) * c + (yi+v-y0) / d + y0) * lowlevel.SCREEN_HEIGHT);
+            let xx = (yi+v-y0) * b + (xi+h-x0) / a;
+            let yy = (xi+h-x0) * c + (yi+v-y0) / d;
+            let xr = xx * cos - yy * sin;
+            let yr = xx * sin + yy * cos;
+            xx = Math.round( (xr + x0) * lowlevel.SCREEN_WIDTH);
+            yy = Math.round( (yr + y0) * lowlevel.SCREEN_HEIGHT);
 
             if (xx >= 0 && xx < bufferFullBackground.width && yy >= 0 && yy < bufferFullBackground.height) {
                 bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 0] = bufferFullBackground.data[bufferIndex(xx, yy, bufferFullBackground.width) + 0];

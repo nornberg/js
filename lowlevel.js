@@ -36,8 +36,8 @@ export let registers = {
     centerY: 0,   
     scaleX: 1,
     scaleY: 1,
-    shearX: 1,
-    shearY: 1,
+    shearX: 0,
+    shearY: 0,
     angle: 0,
     solidColor: 217,
 };
