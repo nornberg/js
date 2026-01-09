@@ -63,7 +63,7 @@ export function frame(timestamp) {
         ctxDebugBackgroundRotated.strokeStyle = "Lightgreen";
         ctxDebugBackgroundRotated.lineWidth = 2;
         ctxDebugBackgroundRotated.beginPath();
-        ctxDebugBackgroundRotated.rect(0, 0, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
+        ctxDebugBackgroundRotated.rect(lowlevel.SCREEN_WIDTH/2, lowlevel.SCREEN_HEIGHT/2, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
         ctxDebugBackgroundRotated.closePath();
         ctxDebugBackgroundRotated.stroke();
         

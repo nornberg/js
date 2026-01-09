@@ -111,14 +111,13 @@ function updateScreen(timestamp) {
         let bgTransform = lowlevel.registers;
 
         ctxFullBackgroundRotated.clearRect(0, 0, canvasFullBackgroundRotated.width, canvasFullBackgroundRotated.height);
-        ctxFullBackgroundRotated.translate(bgTransform.centerX, bgTransform.centerY);
-        ctxFullBackgroundRotated.scale(bgTransform.scaleX, bgTransform.scaleY);
+        ctxFullBackgroundRotated.translate(canvasFullBackgroundRotated.width/2 + bgTransform.centerX, canvasFullBackgroundRotated.height/2 + bgTransform.centerY);
         ctxFullBackgroundRotated.rotate(bgTransform.angle * Math.PI / 180);
-        ctxFullBackgroundRotated.translate(-bgTransform.centerX, -bgTransform.centerY);
-        ctxFullBackgroundRotated.drawImage(canvasFullBackground, 0, 0);
+        ctxFullBackgroundRotated.scale(bgTransform.scaleX, bgTransform.scaleY);
+        ctxFullBackgroundRotated.drawImage(canvasFullBackground, -bgTransform.centerX, -bgTransform.centerY);
         ctxFullBackgroundRotated.resetTransform();
         
-        ctxScreen.drawImage(canvasFullBackgroundRotated, bgTransform.scrollX, bgTransform.scrollY + y, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
+        ctxScreen.drawImage(canvasFullBackgroundRotated, canvasFullBackgroundRotated.width/4-bgTransform.scrollX, canvasFullBackgroundRotated.height/4+y-bgTransform.scrollY, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
 
         //ctxFullBackgroundRotated.fillRect(bgTransform.scrollX, bgTransform.scrollY + y, lowlevel.SCREEN_WIDTH, 1);
         
