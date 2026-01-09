@@ -82,7 +82,7 @@ function frame(timestamp) {
   }
   let elapsedTime = timestamp - lastTimestampUpdate;
   // TODO: fazer o elapsedTime ser independente da limitação de fps abaixo.
-  if (elapsedTime >= 250){
+  if (elapsedTime >= 0){
     lastTimestampUpdate = timestamp;
     frameCount++;
     lowlevel.frame(timestamp)
@@ -104,6 +104,7 @@ function updateScreen(timestamp) {
     let bufferFullBackground = ctxFullBackground.getImageData(0, 0, canvasFullBackground.width, canvasFullBackground.height);
     let bufferLine = ctxScreen.createImageData(canvasScreen.width, 1);
 
+    let bgTransform = lowlevel.registers;
     let k = 1;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
         if (lowlevel.hdma[y]) {
@@ -112,15 +113,7 @@ function updateScreen(timestamp) {
             //     ...lowlevel.hdma[y]
             // }
         }
-        let bgTransform = lowlevel.registers;
-
-        // ctxFullBackgroundRotated.clearRect(0, 0, canvasFullBackgroundRotated.width, canvasFullBackgroundRotated.height);
-        // ctxFullBackgroundRotated.translate(canvasFullBackgroundRotated.width/2 + bgTransform.centerX, canvasFullBackgroundRotated.height/2 + bgTransform.centerY);
-        // ctxFullBackgroundRotated.rotate(bgTransform.angle * Math.PI / 180);
-        // ctxFullBackgroundRotated.scale(bgTransform.scaleX, bgTransform.scaleY);
-        // ctxFullBackgroundRotated.drawImage(canvasFullBackground, -bgTransform.centerX, -bgTransform.centerY);
-        // ctxFullBackgroundRotated.resetTransform();
-        // ctxScreen.drawImage(canvasFullBackgroundRotated, canvasFullBackgroundRotated.width/4-bgTransform.scrollX, canvasFullBackgroundRotated.height/4+y-bgTransform.scrollY, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
+        bgTransform = lowlevel.registers;
 
         let theta = bgTransform.angle * Math.PI / 180;
         let cos = Math.cos(theta);
@@ -142,7 +135,6 @@ function updateScreen(timestamp) {
             let yr = xx * sin + yy * cos;
             xx = Math.round( (xr + x0) * lowlevel.SCREEN_WIDTH);
             yy = Math.round( (yr + y0) * lowlevel.SCREEN_HEIGHT);
-
             if (xx >= 0 && xx < bufferFullBackground.width && yy >= 0 && yy < bufferFullBackground.height) {
                 bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 0] = bufferFullBackground.data[bufferIndex(xx, yy, bufferFullBackground.width) + 0];
                 bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 1] = bufferFullBackground.data[bufferIndex(xx, yy, bufferFullBackground.width) + 1];
@@ -155,10 +147,7 @@ function updateScreen(timestamp) {
             bufferLine.data[bufferIndex(x, 0, bufferLine.width) + 3] = 255;
         }
         ctxScreen.putImageData(bufferLine, 0, y);
-        //ctxScreen.drawImage(canvasFullBackground, 0-bgTransform.scrollX, y-bgTransform.scrollY, lowlevel.SCREEN_WIDTH, 1, 0, y, lowlevel.SCREEN_WIDTH, 1);
-        
-        debug.frame(timestamp);
-        //await sleep(50);
+        //debug.frame(timestamp);
     }
 }
 
@@ -206,8 +195,4 @@ function showDebugText() {
     ctxScreen.fillText(s1, 10, 10);
     ctxScreen.fillText(s2, canvasScreen.width - ctxScreen.measureText(s2).width - 10, 10);
     ctxScreen.fillText(debug_str, 10, 450);
-}
-
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
