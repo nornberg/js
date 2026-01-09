@@ -60,13 +60,34 @@ export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
         ctxDebugBackgroundRotated.drawImage(canvasFullBackgroundRotated, 0, 0);
+        ctxDebugBackgroundRotated.strokeStyle = "Lightgreen";
+        ctxDebugBackgroundRotated.lineWidth = 2;
+        ctxDebugBackgroundRotated.beginPath();
+        ctxDebugBackgroundRotated.rect(0, 0, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
+        ctxDebugBackgroundRotated.closePath();
+        ctxDebugBackgroundRotated.stroke();
         
         ctxDebugBackground.drawImage(canvasFullBackground, 0, 0);
-        ctxDebugBackground.strokeStyle = "yellow";
+        ctxDebugBackground.strokeStyle = "Lightgreen";
+        ctxDebugBackground.lineWidth = 2;
+        
+        ctxDebugBackground.scale(1/lowlevel.registers.scaleX, 1/lowlevel.registers.scaleY);
         ctxDebugBackground.beginPath();
         ctxDebugBackground.rect(lowlevel.registers.scrollX, lowlevel.registers.scrollY, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-        ctxDebugBackground.arc(lowlevel.registers.centerX, lowlevel.registers.centerY, lowlevel.GRAPHIC_H_SIZE, 0, 360);
+        ctxDebugBackground.closePath();
         ctxDebugBackground.stroke();
+        ctxDebugBackground.resetTransform();
+
+        ctxDebugBackground.beginPath();
+        ctxDebugBackground.arc(lowlevel.registers.centerX, lowlevel.registers.centerY, lowlevel.GRAPHIC_H_SIZE, 0, 360);
+        ctxDebugBackground.arc(lowlevel.registers.centerX, lowlevel.registers.centerY, lowlevel.GRAPHIC_H_SIZE*2, 0, 360);
+        ctxDebugBackground.closePath();
+        ctxDebugBackground.stroke();
+
+        let debug_str = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY}) ${lowlevel.registers.scaleX.toFixed(2)}x${lowlevel.registers.scaleY.toFixed(2)} ${lowlevel.registers.angle.toFixed(2)}º`;
+        ctxDebugBackground.fillStyle = "white";
+        ctxDebugBackground.font = "24px monospace";
+        ctxDebugBackground.fillText(debug_str, 10, 500);
     //}
 }
 
