@@ -14,7 +14,7 @@ function setup() {
     80,10,10,10,10,10,10,80,
     80,80,80,80,80,80,80,80,
   ]);
-  lowlevel.background.tilemap.fill(10);
+  lowlevel.background.tilemap.fill(150);
   lowlevel.setBackgroundTile(18, 7, 250);
   lowlevel.setBackgroundTile(19, 7, 250);
   lowlevel.setBackgroundTile(18, 8, 250);
@@ -45,6 +45,7 @@ function setup() {
       lowlevel.setBackgroundTile(x, 0, 250);
       lowlevel.setBackgroundTile(x, lowlevel.background.tilemapH - 1, 250); 
   };
+  lowlevel.palette[150] = { r: 0, g: 100, b: 100 };
   lowlevel.setHDMA(0,
   {
       scrollX: 0,
