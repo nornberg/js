@@ -1,6 +1,6 @@
 "use strict";
 
-import * as debug from "./debug.js";
+import * as debug_ from "./debug.js";
 
 let canvasScreen = null;
 let ctxScreen = null;
@@ -11,6 +11,7 @@ let lastTimestampFrameCount = 0;
 let lastTimestampUpdate = 0;
 
 let lowlevel = null;
+export const debug = debug_;
 
 export function init(canvasElementName, aLowlevel) {
     lowlevel = aLowlevel;
@@ -40,7 +41,7 @@ function frame(timestamp) {
   }
   let elapsedTime = timestamp - lastTimestampUpdate;
   // TODO: fazer o elapsedTime ser independente da limitação de fps abaixo.
-  if (elapsedTime >= 200){
+  if (elapsedTime >= 0){
     lastTimestampUpdate = timestamp;
     frameCount++;
     lowlevel.frame(timestamp)
@@ -54,14 +55,30 @@ function frame(timestamp) {
 function updateScreen(timestamp) {
     renderTilemapToBuffer(lowlevel.backgroundPixels, lowlevel.background);
     let imgDataLine = ctxScreen.createImageData(lowlevel.SCREEN_WIDTH, 1);
-
+    
+    let pauseCount = 0;
     let bgTransform = lowlevel.registers;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
         mapScanlineToScreen(y, lowlevel.backgroundPixels, lowlevel.screenPixels);
         copyScanlineToImgData(y, lowlevel.screenPixels, imgDataLine);
         ctxScreen.putImageData(imgDataLine, 0, y);
-        //debug.frame(timestamp);
+        //debug.scanline(y, timestamp);
+        while (debug.isPaused()) {
+            pauseCount++;
+            if (pauseCount > 10 * 1000) {
+                debug.resume();
+                pauseCount = 0;
+            }
+        };
     }
+    //debug.frame(timestamp);
+    while (debug.isPaused()) {
+        pauseCount++;
+        if (pauseCount > 10 * 1000) {
+            debug.resume();
+            pauseCount = 0;
+        }
+    };
 }
 
 function renderTilemapToBuffer(buffer, tilemap) {
@@ -78,7 +95,7 @@ function renderGraphicToBuffer(buffer, graphic, destX, destY) {
     for (let tileY = 0; tileY < lowlevel.GRAPHIC_V_SIZE; tileY++) {
         for (let tileX = 0; tileX < lowlevel.GRAPHIC_H_SIZE; tileX++) {
             let colorIndex = graphic[tileY * lowlevel.GRAPHIC_H_SIZE + tileX];
-            let pixelIndex = (destY + tileY) * lowlevel.SCREEN_WIDTH + (destX + tileX);
+            let pixelIndex = (destY + tileY) * (lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE) + (destX + tileX);
             buffer[pixelIndex] = colorIndex;
         }
     }
@@ -108,8 +125,8 @@ function mapScanlineToScreen(y, bufferBg, bufferScreen) {
         let yr = xx * sin + yy * cos;
         xx = Math.round( (xr + x0) * lowlevel.SCREEN_WIDTH);
         yy = Math.round( (yr + y0) * lowlevel.SCREEN_HEIGHT);
-        if (xx >= 0 && xx < lowlevel.SCREEN_WIDTH && yy >= 0 && yy < lowlevel.SCREEN_HEIGHT) {
-            bufferScreen[y * lowlevel.SCREEN_WIDTH + x] = bufferBg[yy * lowlevel.SCREEN_WIDTH + xx];
+        if (xx >= 0 && xx < (lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE) && yy >= 0 && yy < (lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE)) {
+            bufferScreen[y * lowlevel.SCREEN_WIDTH + x] = bufferBg[yy * (lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE) + xx];
         } else {
             bufferScreen[y * lowlevel.SCREEN_WIDTH + x] = lowlevel.TRANSP_COLOR_INDEX;
         }
