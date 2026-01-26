@@ -112,11 +112,11 @@ function mapScanlineToScreen(y, bufferBg, bufferScreen) {
     let c = bgTransform.shearX;
     let d = bgTransform.scaleY;
     let h = bgTransform.scrollX / lowlevel.SCREEN_WIDTH;
-    let v = bgTransform.scrollY / lowlevel.SCREEN_HEIGHT;
+    let v = bgTransform.scrollY / lowlevel.SCREEN_WIDTH;
     
     let x0 = bgTransform.centerX / lowlevel.SCREEN_WIDTH;
-    let y0 = bgTransform.centerY / lowlevel.SCREEN_HEIGHT;
-    let yi = y / lowlevel.SCREEN_HEIGHT;
+    let y0 = bgTransform.centerY / lowlevel.SCREEN_WIDTH;
+    let yi = y / lowlevel.SCREEN_WIDTH;
     for (let x = 0; x < lowlevel.SCREEN_WIDTH * 4; x++) {
         let xi = x / lowlevel.SCREEN_WIDTH;
         let xx = (yi+v-y0) * b + (xi+h-x0) / a;
@@ -124,7 +124,7 @@ function mapScanlineToScreen(y, bufferBg, bufferScreen) {
         let xr = xx * cos - yy * sin;
         let yr = xx * sin + yy * cos;
         xx = Math.round( (xr + x0) * lowlevel.SCREEN_WIDTH);
-        yy = Math.round( (yr + y0) * lowlevel.SCREEN_HEIGHT);
+        yy = Math.round( (yr + y0) * lowlevel.SCREEN_WIDTH);
         if (xx >= 0 && xx < (lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE) && yy >= 0 && yy < (lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE)) {
             bufferScreen[y * lowlevel.SCREEN_WIDTH + x] = bufferBg[yy * (lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE) + xx];
         } else {
