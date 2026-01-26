@@ -5,8 +5,8 @@ let canvasDebugBackground = null;
 let canvasDebugBackgroundRotated = null;
 let ctxDebugBackground = null;
 let ctxDebugBackgroundRotated = null;
-let canvasFullBackground = null;
-let canvasFullBackgroundRotated = null;
+let imgDataDebugBackground = null;
+let imgDataDebugBackgroundRotated = null;
 
 export const AUTOPAUSE_NONE = 0;
 export const AUTOPAUSE_ON_FRAME = 1;
@@ -15,25 +15,17 @@ export const AUTOPAUSE_ON_SCANLINE = 2;
 let autoPause = AUTOPAUSE_ON_FRAME;
 let paused = false;
 
-let canvasObjects = null;
-let canvasTiles = null;
-let ctxObjects = null;
-let ctxTiles = null;
-let bufferObjects = null;
-let bufferTiles = null;
-
-export function init(aLowlevel, aCanvasFullBackgroundRotated, aCanvasFullBackground) {
-    lowlevel = aLowlevel;
-    canvasFullBackground = aCanvasFullBackground;
-    canvasFullBackgroundRotated = aCanvasFullBackgroundRotated;
-    
-    canvasDebugBackgroundRotated = createCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-    canvasDebugBackground = createCanvas("objectscanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+export function init(aLowlevel) {
+    lowlevel = aLowlevel;    
+    canvasDebugBackgroundRotated = getCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    canvasDebugBackground = getCanvas("objectscanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
     ctxDebugBackgroundRotated = createContext(canvasDebugBackgroundRotated, "lightGreen");
     ctxDebugBackground = createContext(canvasDebugBackground, "lightblue");
+    imgDataDebugBackground = createBuffer(ctxDebugBackground, canvasDebugBackground.width, canvasDebugBackground.height);
+    imgDataDebugBackgroundRotated = createBuffer(ctxDebugBackgroundRotated, canvasDebugBackgroundRotated.width, canvasDebugBackgroundRotated.height);
 }
 
-function createCanvas(canvasElementName, width, height) {
+function getCanvas(canvasElementName, width, height) {
     let canvas = document.getElementById(canvasElementName);
     canvas.width = width;
     canvas.height = height;
@@ -49,16 +41,8 @@ function createContext(canvas, color) {
     return context;
 }
 
-function createBuffer(w, h) {
-    let buffer = ctxDebugBackground.createImageData(w, h);
-    buffer.data.fill(255);
-    for (let y = 0; y < buffer.height; y++) {
-        for (let x = 0; x < buffer.width; x++) {
-            buffer.data[bufferIndex(x, y, buffer.width) + 0] = 255;
-            buffer.data[bufferIndex(x, y, buffer.width) + 1] = 0;
-            buffer.data[bufferIndex(x, y, buffer.width) + 3] = 255;
-        }
-    }
+function createBuffer(ctx, w, h) {
+    let buffer = ctx.getImageData(0, 0, w, h);
     return buffer;
 }
 
@@ -72,9 +56,8 @@ let lastTimestamp = 0;
 export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
-        let imgData = ctxDebugBackgroundRotated.createImageData(canvasDebugBackgroundRotated.width, canvasDebugBackgroundRotated.height);
-        renderPixelsToImgData(imgData, lowlevel.backgroundPixels);
-        ctxDebugBackgroundRotated.putImageData(imgData, 0, 0);
+        renderPixelsToImgData(imgDataDebugBackgroundRotated, lowlevel.backgroundPixels);
+        ctxDebugBackgroundRotated.putImageData(imgDataDebugBackgroundRotated, 0, 0);
 
         let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
         let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(0)}x${lowlevel.registers.scaleY.toFixed(0)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
@@ -98,7 +81,6 @@ function renderPixelsToImgData(imgData, pixels) {
             imgData.data[bufIdx + 0] = lowlevel.palette[colorIndex].r;
             imgData.data[bufIdx + 1] = lowlevel.palette[colorIndex].g;
             imgData.data[bufIdx + 2] = lowlevel.palette[colorIndex].b;
-            imgData.data[bufIdx + 3] = 255;
         }
     }
 }

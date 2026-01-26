@@ -45,7 +45,7 @@ function frame(timestamp) {
     lastTimestampUpdate = timestamp;
     frameCount++;
     lowlevel.frame(timestamp)
-    //debug.frame(timestamp);
+    debug.frame(timestamp);
     updateScreen(timestamp);
     showDebugText();
   }
