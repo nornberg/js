@@ -45,7 +45,6 @@ function frame(timestamp) {
     lastTimestampUpdate = timestamp;
     frameCount++;
     lowlevel.frame(timestamp)
-    debug.frame(timestamp);
     updateScreen(timestamp);
     showDebugText();
   }
@@ -71,7 +70,7 @@ function updateScreen(timestamp) {
             }
         };
     }
-    //debug.frame(timestamp);
+    debug.frame(timestamp);
     while (debug.isPaused()) {
         pauseCount++;
         if (pauseCount > 10 * 1000) {

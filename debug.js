@@ -56,8 +56,12 @@ let lastTimestamp = 0;
 export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
-        renderPixelsToImgData(imgDataDebugBackgroundRotated, lowlevel.backgroundPixels);
+        
+        renderPixelsToImgData(imgDataDebugBackgroundRotated, lowlevel.screenPixels, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
         ctxDebugBackgroundRotated.putImageData(imgDataDebugBackgroundRotated, 0, 0);
+
+        renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+        ctxDebugBackground.putImageData(imgDataDebugBackground, 0, 0);
 
         let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
         let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(0)}x${lowlevel.registers.scaleY.toFixed(0)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
@@ -73,10 +77,10 @@ export function frame(timestamp) {
     }
 }
 
-function renderPixelsToImgData(imgData, pixels) {
-    for (let y = 0; y < lowlevel.SCREEN_HEIGHT; y++) {
-        for (let x = 0; x < lowlevel.SCREEN_WIDTH; x++) {
-            let colorIndex = pixels[y * (lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE) + x];
+function renderPixelsToImgData(imgData, pixels, width, height) {
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            let colorIndex = pixels[y * width + x];
             let bufIdx = bufferIndex(x, y, imgData.width);
             imgData.data[bufIdx + 0] = lowlevel.palette[colorIndex].r;
             imgData.data[bufIdx + 1] = lowlevel.palette[colorIndex].g;
