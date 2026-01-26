@@ -45,6 +45,7 @@ function setup() {
       lowlevel.setBackgroundTile(x, 0, 250);
       lowlevel.setBackgroundTile(x, lowlevel.background.tilemapH - 1, 250); 
   };
+  lowlevel.palette[150] = { r: 0, g: 100, b: 100 };
   lowlevel.setHDMA(0,
   {
       scrollX: 0,
@@ -65,6 +66,8 @@ function setup() {
             scaleY: 1 + k * 17,            
         });
   }
+  graphics.debug.setAutoPause(graphics.debug.AUTOPAUSE_ON_FRAME);
+
   window.onkeydown = function(e) {
     let shiftDown = e.shiftKey; 
     let ctrlKey = e.ctrlKey;
@@ -102,9 +105,11 @@ function setup() {
           lowlevel.registers.scaleY -= 0.5;
         }
       }
+    } else if (e.key === " ") { 
+      graphics.debug.pause();
     } else return true;
     return false;
-  };  
+  };
 }
 
 let pos = {x: 10, y: 20};

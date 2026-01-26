@@ -3,6 +3,7 @@
 // ---- CONSTANTS ----
 
 export const PALETTE_SIZE = 216 + 1; // índice 216 é a cor transparente.
+export const TRANSP_COLOR_INDEX = 216;
 
 export const SCREEN_WIDTH = 640;
 export const SCREEN_HEIGHT = 480;
@@ -39,9 +40,16 @@ export let registers = {
     shearX: 0,
     shearY: 0,
     angle: 0,
-    solidColor: 217,
+    solidColor: TRANSP_COLOR_INDEX,
 };
 export const hdma = [];
+
+// ---- MEMORY BUFFERS ----
+
+export const backgroundPixels = new Uint8ClampedArray(TILEMAP_H_SIZE * GRAPHIC_H_SIZE * TILEMAP_V_SIZE * GRAPHIC_V_SIZE);
+export const screenPixels = new Uint8ClampedArray(SCREEN_WIDTH * SCREEN_HEIGHT);
+
+// ---- FRAME ROUTINES ----
 
 export let frame = function(timestamp) {};
 
@@ -55,9 +63,10 @@ export function setGraphic(graphicIndex, graphicData) {
 }
 
 export function getGraphic(graphicIndex) {
-    let graphicData = [];
+    let graphicData = new Uint8ClampedArray(GRAPHIC_H_SIZE * GRAPHIC_V_SIZE);
+    let startIdx = graphicIndex * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE;
     for (let i = 0; i < GRAPHIC_H_SIZE * GRAPHIC_V_SIZE; i++) {
-        graphicData[i] = graphics[graphicIndex * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE + i];
+        graphicData[i] = graphics[startIdx + i];
     }
     return graphicData;
 }
@@ -71,10 +80,10 @@ export function setGraphicPixel(graphicIdx, x, y, value) {
 // ---- BACKGROUND ROUTINES ----
 
 export function setBackgroundTile(x, y, tileIdx) {
-    if (x < 0 || x >= background.tilemapW || y < 0 || y >= background.tilemapH) {
+    if (x < 0 || x >= TILEMAP_H_SIZE || y < 0 || y >= TILEMAP_V_SIZE) {
         return false;
     }
-    let idx = y * background.tilemapW + x;
+    let idx = y * TILEMAP_H_SIZE + x;
     background.tilemap[idx] = tileIdx;
     return true;
 }
