@@ -69,8 +69,10 @@ export function frame(timestamp) {
         let sw = lowlevel.SCREEN_WIDTH;
         let sh = lowlevel.SCREEN_HEIGHT;
         let rad = lowlevel.registers.angle * Math.PI / 180;
+        let arcSize = 5 / sx;
 
         ctxDebugBackground.strokeStyle = "white";
+        ctxDebugBackground.lineWidth = 1 / Math.max(sx, sy);
         ctxDebugBackground.translate(cx, cy);
         ctxDebugBackground.rotate(rad);
         ctxDebugBackground.scale(sx, sy);
@@ -78,9 +80,7 @@ export function frame(timestamp) {
         ctxDebugBackground.beginPath();
         ctxDebugBackground.rect(dx-0.5, dy-0.5, sw, sh);
         ctxDebugBackground.moveTo(cx, cy);                         
-        ctxDebugBackground.arc(cx, cy, 5, 0, 2 * Math.PI);
-        ctxDebugBackground.moveTo(350+0.5,250);
-        ctxDebugBackground.lineTo(400+0.5,300);
+        ctxDebugBackground.arc(cx, cy, arcSize, 0, 2 * Math.PI);
         ctxDebugBackground.stroke();
         ctxDebugBackground.resetTransform();
         
