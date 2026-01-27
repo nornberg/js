@@ -60,13 +60,30 @@ export function frame(timestamp) {
         renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
         ctxDebugBackground.putImageData(imgDataDebugBackground, 0, 0);
 
+        let cx = lowlevel.registers.centerX;
+        let cy = lowlevel.registers.centerY;
+        let sx = 1 / lowlevel.registers.scaleX;
+        let sy = 1 / lowlevel.registers.scaleY;
+        let dx = lowlevel.registers.scrollX;
+        let dy = lowlevel.registers.scrollY;
+        let sw = lowlevel.SCREEN_WIDTH;
+        let sh = lowlevel.SCREEN_HEIGHT;
+        let rad = lowlevel.registers.angle * Math.PI / 180;
+
         ctxDebugBackground.strokeStyle = "white";
+        ctxDebugBackground.translate(cx, cy);
+        ctxDebugBackground.rotate(rad);
+        ctxDebugBackground.scale(sx, sy);
+        ctxDebugBackground.translate(-cx, -cy);
         ctxDebugBackground.beginPath();
-        ctxDebugBackground.rect(lowlevel.registers.scrollX-0.5, lowlevel.registers.scrollY-0.5, lowlevel.SCREEN_WIDTH,lowlevel.SCANLINES);
+        ctxDebugBackground.rect(dx-0.5, dy-0.5, sw, sh);
+        ctxDebugBackground.moveTo(cx, cy);                         
+        ctxDebugBackground.arc(cx, cy, 5, 0, 2 * Math.PI);
         ctxDebugBackground.moveTo(350+0.5,250);
         ctxDebugBackground.lineTo(400+0.5,300);
         ctxDebugBackground.stroke();
-
+        ctxDebugBackground.resetTransform();
+        
 
         let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
         let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(0)}x${lowlevel.registers.scaleY.toFixed(0)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
