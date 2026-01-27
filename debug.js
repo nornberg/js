@@ -17,8 +17,8 @@ let paused = false;
 
 export function init(aLowlevel) {
     lowlevel = aLowlevel;    
-    canvasDebugBackgroundRotated = getCanvas("bgcanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-    canvasDebugBackground = getCanvas("objectscanvas", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    canvasDebugBackgroundRotated = getCanvas("debugCanvasB", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    canvasDebugBackground = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
     ctxDebugBackgroundRotated = createContext(canvasDebugBackgroundRotated, "lightGreen");
     ctxDebugBackground = createContext(canvasDebugBackground, "lightblue");
     imgDataDebugBackground = createBuffer(ctxDebugBackground, canvasDebugBackground.width, canvasDebugBackground.height);
@@ -56,12 +56,17 @@ let lastTimestamp = 0;
 export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
-        
-        renderPixelsToImgData(imgDataDebugBackgroundRotated, lowlevel.screenPixels, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
-        ctxDebugBackgroundRotated.putImageData(imgDataDebugBackgroundRotated, 0, 0);
 
         renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
         ctxDebugBackground.putImageData(imgDataDebugBackground, 0, 0);
+
+        ctxDebugBackground.strokeStyle = "white";
+        ctxDebugBackground.beginPath();
+        ctxDebugBackground.rect(lowlevel.registers.scrollX-0.5, lowlevel.registers.scrollY-0.5, lowlevel.SCREEN_WIDTH,lowlevel.SCANLINES);
+        ctxDebugBackground.moveTo(350+0.5,250);
+        ctxDebugBackground.lineTo(400+0.5,300);
+        ctxDebugBackground.stroke();
+
 
         let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
         let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(0)}x${lowlevel.registers.scaleY.toFixed(0)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
