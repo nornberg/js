@@ -4,6 +4,7 @@ import * as debug_ from "./debug.js";
 
 let canvasScreen = null;
 let ctxScreen = null;
+let imgDataLine = null;
 
 let fps = 0;
 let frameCount = 0;
@@ -31,6 +32,8 @@ function createCanvasScreen(canvasElementName, width, height) {
     canvasScreen.style.imageRendering = "pixelated";
     ctxScreen = canvasScreen.getContext("2d", { alpha: false, antialias: false, depth: false });
     ctxScreen.imageSmoothingEnabled = false;
+    imgDataLine = ctxScreen.createImageData(lowlevel.SCREEN_WIDTH, 1);
+    imgDataLine.data.fill(255);
 }
 
 function frame(timestamp) {
@@ -53,8 +56,7 @@ function frame(timestamp) {
 
 function updateScreen(timestamp) {
     renderTilemapToBuffer(lowlevel.backgroundPixels, lowlevel.background);
-    let imgDataLine = ctxScreen.createImageData(lowlevel.SCREEN_WIDTH, 1);
-    
+
     let pauseCount = 0;
     let bgTransform = lowlevel.registers;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
@@ -140,7 +142,6 @@ function copyScanlineToImgData(y, buffer, imgData) {
         imgData.data[bufferIdx + 0] = paletteColor.r;
         imgData.data[bufferIdx + 1] = paletteColor.g;
         imgData.data[bufferIdx + 2] = paletteColor.b;
-        imgData.data[bufferIdx + 3] = 255;
     }
 }
 
