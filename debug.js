@@ -7,7 +7,7 @@ let canvasDebugB = null;
 let ctxDebugA = null;
 let ctxDebugB = null;
 let imgDataDebugBackground = null;
-let imgDataDebugPalAndGraphics = null;
+let imgDataDebugGraphics = null;
 
 export const AUTOPAUSE_NONE = 0;
 export const AUTOPAUSE_ON_FRAME = 1;
@@ -23,7 +23,7 @@ export function init(aLowlevel) {
     ctxDebugA = createContext(canvasDebugA, "lightblue");
     ctxDebugB = createContext(canvasDebugB, "lightGreen");
     imgDataDebugBackground = createBuffer(ctxDebugA, canvasDebugA.width, canvasDebugA.height);
-    imgDataDebugPalAndGraphics = createBuffer(ctxDebugB, canvasDebugB.width, canvasDebugB.height);
+    imgDataDebugGraphics = createBuffer(ctxDebugB, 32 * lowlevel.GRAPHIC_H_SIZE, 32 * lowlevel.GRAPHIC_V_SIZE);
 }
 
 function getCanvas(canvasElementName, width, height) {
@@ -58,14 +58,8 @@ export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
 
-        renderGraphicsToImgData(lowlevel.graphics, imgDataDebugPalAndGraphics, 32);
-        let tmpCan1 = new OffscreenCanvas(32 * lowlevel.GRAPHIC_H_SIZE, 32 * lowlevel.GRAPHIC_V_SIZE);
-        let tmpCtx1 = tmpCan1.getContext("2d", { alpha: false, antialias: false, depth: false });
-        tmpCtx1.imageSmoothingEnabled = false;
-        tmpCtx1.fillStyle = "green";
-        tmpCtx1.fillRect(0, 0, tmpCan1.width, tmpCan1.height);
-        tmpCtx1.putImageData(imgDataDebugPalAndGraphics, 0, 0);
-        ctxDebugB.drawImage(tmpCan1, 0, 0 , tmpCan1.width, tmpCan1.height, 0, 0, 32 * lowlevel.GRAPHIC_H_SIZE * 4, 32 * lowlevel.GRAPHIC_V_SIZE * 4);
+        renderGraphicsToImgData(lowlevel.graphics, imgDataDebugGraphics, 32);
+        putImageDataScaled(ctxDebugB, imgDataDebugGraphics, 4);
         drawGraphicsIndexes(ctxDebugB, 32);
 
         renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
@@ -159,6 +153,15 @@ function drawGraphicsIndexes(ctx, graphicsPerLine) {
     }
 }
 
+function putImageDataScaled(ctx, imgData, scale){
+    let tmpCan1 = new OffscreenCanvas(imgData.width, imgData.height);
+    let tmpCtx1 = tmpCan1.getContext("2d", { alpha: false, antialias: false, depth: false });
+    tmpCtx1.imageSmoothingEnabled = false;
+    tmpCtx1.fillStyle = "green";
+    tmpCtx1.fillRect(0, 0, tmpCan1.width, tmpCan1.height);
+    tmpCtx1.putImageData(imgData, 0, 0);
+    ctx.drawImage(tmpCan1, 0, 0 , tmpCan1.width, tmpCan1.height, 0, 0, tmpCan1.width * scale, tmpCan1.height * scale);
+}
 
 
 function bufferIndex(x, y, width) {
