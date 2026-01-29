@@ -107,6 +107,15 @@ function setup() {
       }
     } else if (e.key === " ") { 
       graphics.debug.pause();
+    } else if (e.key === "d") {
+      if (!graphics.debug.isActive()) { 
+        graphics.debug.activate();
+      } else {
+        graphics.debug.deactivate();
+      }
+    } else if (e.key === "F11") {
+      graphics.debug.deactivate();
+      toggleFullscreen("gamecanvas");
     } else if (e.key === "i") {
       if (graphics.debug.isIndexesVisible()) {
         graphics.debug.hideIndexes();
@@ -134,6 +143,31 @@ function frame(timestamp) {
   lowlevel.setBackgroundTile(pos.x, pos.y+1, 250);
   lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 250);
   lowlevel.hdma[0].angle = (timestamp / 50) % 360;
+}
+
+function toggleFullscreen(elementName) {
+    var elem = document.documentElement; // Makes the entire page content fullscreen
+    elem = document.getElementById(elementName);
+
+    if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
+        // If already in fullscreen, exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+        }
+    } else {
+        // Otherwise, request fullscreen
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) { /* Safari */
+            elem.webkitRequestFullscreen();
+        } else if (elem.msRequestFullscreen) { /* IE11 */
+            elem.msRequestFullscreen();
+        }
+    }
 }
 
 function main() {

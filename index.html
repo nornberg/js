@@ -20,39 +20,6 @@
         <canvas id="debugCanvasC"></canvas>
       </div>
     </div>
-    <script>
-      function toggleFullscreen() {
-          var elem = document.documentElement; // Makes the entire page content fullscreen
-          elem = document.getElementById("container");
-
-          if (document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement) {
-              // If already in fullscreen, exit fullscreen
-              if (document.exitFullscreen) {
-                  document.exitFullscreen();
-              } else if (document.webkitExitFullscreen) { /* Safari */
-                  document.webkitExitFullscreen();
-              } else if (document.msExitFullscreen) { /* IE11 */
-                  document.msExitFullscreen();
-              }
-          } else {
-              // Otherwise, request fullscreen
-              if (elem.requestFullscreen) {
-                  elem.requestFullscreen();
-              } else if (elem.webkitRequestFullscreen) { /* Safari */
-                  elem.webkitRequestFullscreen();
-              } else if (elem.msRequestFullscreen) { /* IE11 */
-                  elem.msRequestFullscreen();
-              }
-          }
-      }
-      
-      // add eventlistener to toggle full screen when pressing f11
-      document.addEventListener("keydown", function(event) {
-          if (event.key === "F11") {
-              toggleFullscreen();
-          }
-      });
-    </script>
     <script type="module" src="script.js"></script>
   </body>
 </html>

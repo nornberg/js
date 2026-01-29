@@ -63,7 +63,19 @@ function updateScreen(timestamp) {
         mapScanlineToScreen(y, lowlevel.backgroundPixels, lowlevel.screenPixels);
         copyScanlineToImgData(y, lowlevel.screenPixels, imgDataLine);
         ctxScreen.putImageData(imgDataLine, 0, y);
-        //debug.scanline(y, timestamp);
+        if (debug.isActive()) {
+            //debug.scanline(y, timestamp);
+            while (debug.isPaused()) {
+                pauseCount++;
+                if (pauseCount > 10 * 1000) {
+                    debug.resume();
+                    pauseCount = 0;
+                }
+            };
+        }
+    }
+    if (debug.isActive()) {
+        debug.frame(timestamp);
         while (debug.isPaused()) {
             pauseCount++;
             if (pauseCount > 10 * 1000) {
@@ -72,14 +84,6 @@ function updateScreen(timestamp) {
             }
         };
     }
-    debug.frame(timestamp);
-    while (debug.isPaused()) {
-        pauseCount++;
-        if (pauseCount > 10 * 1000) {
-            debug.resume();
-            pauseCount = 0;
-        }
-    };
 }
 
 function renderTilemapToBuffer(buffer, tilemap) {
