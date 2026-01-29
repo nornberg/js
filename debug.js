@@ -1,12 +1,13 @@
 "use strict";
 
 let lowlevel = null;
-let canvasDebugBackground = null;
-let canvasDebugBackgroundRotated = null;
-let ctxDebugBackground = null;
-let ctxDebugBackgroundRotated = null;
+
+let canvasDebugA = null;
+let canvasDebugB = null;
+let ctxDebugA = null;
+let ctxDebugB = null;
 let imgDataDebugBackground = null;
-let imgDataDebugBackgroundRotated = null;
+let imgDataDebugPalAndGraphics = null;
 
 export const AUTOPAUSE_NONE = 0;
 export const AUTOPAUSE_ON_FRAME = 1;
@@ -17,12 +18,12 @@ let paused = false;
 
 export function init(aLowlevel) {
     lowlevel = aLowlevel;    
-    canvasDebugBackgroundRotated = getCanvas("debugCanvasB", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-    canvasDebugBackground = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-    ctxDebugBackgroundRotated = createContext(canvasDebugBackgroundRotated, "lightGreen");
-    ctxDebugBackground = createContext(canvasDebugBackground, "lightblue");
-    imgDataDebugBackground = createBuffer(ctxDebugBackground, canvasDebugBackground.width, canvasDebugBackground.height);
-    imgDataDebugBackgroundRotated = createBuffer(ctxDebugBackgroundRotated, canvasDebugBackgroundRotated.width, canvasDebugBackgroundRotated.height);
+    canvasDebugA = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    canvasDebugB = getCanvas("debugCanvasB", 32 * lowlevel.GRAPHIC_H_SIZE, 32 * lowlevel.GRAPHIC_V_SIZE + 32 * 13);
+    ctxDebugA = createContext(canvasDebugA, "lightblue");
+    ctxDebugB = createContext(canvasDebugB, "lightGreen");
+    imgDataDebugBackground = createBuffer(ctxDebugA, canvasDebugA.width, canvasDebugA.height);
+    imgDataDebugPalAndGraphics = createBuffer(ctxDebugB, canvasDebugB.width, canvasDebugB.height);
 }
 
 function getCanvas(canvasElementName, width, height) {
@@ -57,46 +58,55 @@ export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
 
+        renderGraphicsToImgData(lowlevel.graphics, imgDataDebugPalAndGraphics, 32);
+        ctxDebugB.putImageData(imgDataDebugPalAndGraphics, 0, 0);
+
         renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-        ctxDebugBackground.putImageData(imgDataDebugBackground, 0, 0);
+        ctxDebugA.putImageData(imgDataDebugBackground, 0, 0);
 
-        let cx = lowlevel.registers.centerX;
-        let cy = lowlevel.registers.centerY;
-        let sx = 1 / lowlevel.registers.scaleX;
-        let sy = 1 / lowlevel.registers.scaleY;
-        let dx = lowlevel.registers.scrollX;
-        let dy = lowlevel.registers.scrollY;
-        let sw = lowlevel.SCREEN_WIDTH;
-        let sh = lowlevel.SCREEN_HEIGHT;
-        let rad = lowlevel.registers.angle * Math.PI / 180;
-        let arcSize = 5 / sx;
-
-        ctxDebugBackground.strokeStyle = "white";
-        ctxDebugBackground.lineWidth = 1 / Math.max(sx, sy);
-        ctxDebugBackground.translate(cx, cy);
-        ctxDebugBackground.rotate(rad);
-        ctxDebugBackground.scale(sx, sy);
-        ctxDebugBackground.translate(-cx, -cy);
-        ctxDebugBackground.beginPath();
-        ctxDebugBackground.rect(dx-0.5, dy-0.5, sw, sh);
-        ctxDebugBackground.moveTo(cx, cy);                         
-        ctxDebugBackground.arc(cx, cy, arcSize, 0, 2 * Math.PI);
-        ctxDebugBackground.stroke();
-        ctxDebugBackground.resetTransform();
-        
-
-        let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
-        let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(0)}x${lowlevel.registers.scaleY.toFixed(0)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
-        let debug_line_3 = `${lowlevel.registers.angle.toFixed(2)}º  ${paused}`;
-        ctxDebugBackground.fillStyle = "white";
-        ctxDebugBackground.font = "24px monospace";
-        ctxDebugBackground.fillText(debug_line_1, 10, 500);
-        ctxDebugBackground.fillText(debug_line_2, 10, 530);
-        ctxDebugBackground.fillText(debug_line_3, 10, 560);
+        drawScreenBorder(ctxDebugA);
+        drawDebugText(ctxDebugA);
     //}
     if (autoPause === AUTOPAUSE_ON_FRAME) {
         paused = true;
     }
+}
+
+function drawScreenBorder(ctx) {
+    let cx = lowlevel.registers.centerX;
+    let cy = lowlevel.registers.centerY;
+    let sx = 1 / lowlevel.registers.scaleX;
+    let sy = 1 / lowlevel.registers.scaleY;
+    let dx = lowlevel.registers.scrollX;
+    let dy = lowlevel.registers.scrollY;
+    let sw = lowlevel.SCREEN_WIDTH;
+    let sh = lowlevel.SCREEN_HEIGHT;
+    let rad = lowlevel.registers.angle * Math.PI / 180;
+    let arcSize = 5 / sx;
+
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 1 / Math.max(sx, sy);
+    ctx.translate(cx, cy);
+    ctx.rotate(rad);
+    ctx.scale(sx, sy);
+    ctx.translate(-cx, -cy);
+    ctx.beginPath();
+    ctx.rect(dx-0.5, dy-0.5, sw, sh);
+    ctx.moveTo(cx, cy);                         
+    ctx.arc(cx, cy, arcSize, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.resetTransform();
+}
+
+function drawDebugText(ctx) {
+    let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
+    let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(0)}x${lowlevel.registers.scaleY.toFixed(0)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
+    let debug_line_3 = `${lowlevel.registers.angle.toFixed(2)}º  ${paused}`;
+    ctx.fillStyle = "white";
+    ctx.font = "24px monospace";
+    ctx.fillText(debug_line_1, 10, 500);
+    ctx.fillText(debug_line_2, 10, 530);
+    ctx.fillText(debug_line_3, 10, 560);
 }
 
 function renderPixelsToImgData(imgData, pixels, width, height) {
@@ -111,34 +121,26 @@ function renderPixelsToImgData(imgData, pixels, width, height) {
     }
 }
 
-function renderTilemapToImgData(buffer, tilemap) {
-    for (let ty = 0; ty < lowlevel.TILEMAP_V_SIZE; ty++) {
-        for (let tx = 0; tx < lowlevel.TILEMAP_H_SIZE; tx++) {
-            let graphicIndex = tilemap.tilemap[ty * lowlevel.TILEMAP_H_SIZE + tx];
-            let graphic = lowlevel.getGraphic(graphicIndex);
-            renderGraphicToImgData(buffer, graphic, tx * lowlevel.GRAPHIC_H_SIZE, ty * lowlevel.GRAPHIC_V_SIZE);
-        }
+function renderGraphicsToImgData(graphics, imgData, graphicsPerLine) {
+    for (let gIndex = 0; gIndex < lowlevel.GRAPHICS_SIZE; gIndex++) {
+        let x = (gIndex % graphicsPerLine) * lowlevel.GRAPHIC_H_SIZE;
+        let y = Math.floor(gIndex / graphicsPerLine) * lowlevel.GRAPHIC_V_SIZE;
+        renderGraphicToImgData(gIndex, graphics, imgData, x, y);
     }
 }
 
-function renderGraphicToImgData(buffer, graphic, destX, destY) {
-    for (let tileY = 0; tileY < lowlevel.GRAPHIC_V_SIZE; tileY++) {
-        for (let tileX = 0; tileX < lowlevel.GRAPHIC_H_SIZE; tileX++) {
-            let colorIndex = graphic[tileY * lowlevel.GRAPHIC_H_SIZE + tileX];
-            let pixelIndex = (destY + tileY) * lowlevel.SCREEN_WIDTH + (destX + tileX);
-            buffer[pixelIndex] = colorIndex;
+function renderGraphicToImgData(gIndex, graphics, imgData, destX, destY) {
+    let baseIdx = gIndex * lowlevel.GRAPHIC_H_SIZE * lowlevel.GRAPHIC_V_SIZE;
+    for (let gy = 0; gy < lowlevel.GRAPHIC_V_SIZE; gy++) {
+        for (let gx = 0; gx < lowlevel.GRAPHIC_H_SIZE; gx++) {
+            let colorIndex = graphics[baseIdx + gy * lowlevel.GRAPHIC_H_SIZE + gx];
+            let bufIdx = bufferIndex(destX + gx, destY + gy, imgData.width);
+            imgData.data[bufIdx + 0] = lowlevel.palette[colorIndex].r;
+            imgData.data[bufIdx + 1] = lowlevel.palette[colorIndex].g;
+            imgData.data[bufIdx + 2] = lowlevel.palette[colorIndex].b;
         }
     }
 }
-
-
-
-
-
-
-
-
-
 
 
 
