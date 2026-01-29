@@ -17,6 +17,7 @@ export const AUTOPAUSE_ON_SCANLINE = 2;
 let autoPause = AUTOPAUSE_ON_FRAME;
 let paused = false;
 
+let active = true;
 let indexesVisible = false;
 
 export function init(aLowlevel) {
@@ -173,7 +174,7 @@ function renderPaletteToImgData(palette, imgData, cols) {
     }
 }
 
-function putImageDataScaled(ctx, imgData, scale, y){
+function putImageDataScaled(ctx, imgData, scale, y) {
     let tmpCan1 = new OffscreenCanvas(imgData.width, imgData.height);
     let tmpCtx1 = tmpCan1.getContext("2d", { alpha: false, antialias: false, depth: false });
     tmpCtx1.imageSmoothingEnabled = false;
@@ -215,3 +216,15 @@ export function hideIndexes() {
 export function isIndexesVisible() {
     return indexesVisible;
 };
+
+export function activate() {
+    active = true;
+}
+
+export function deactivate() {
+    active = false;
+}
+
+export function isActive() {
+    return active;
+}
