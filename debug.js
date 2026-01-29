@@ -16,6 +16,8 @@ export const AUTOPAUSE_ON_SCANLINE = 2;
 let autoPause = AUTOPAUSE_ON_FRAME;
 let paused = false;
 
+let indexesVisible = false;
+
 export function init(aLowlevel) {
     lowlevel = aLowlevel;    
     canvasDebugA = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
@@ -60,7 +62,9 @@ export function frame(timestamp) {
 
         renderGraphicsToImgData(lowlevel.graphics, imgDataDebugGraphics, 32);
         putImageDataScaled(ctxDebugB, imgDataDebugGraphics, 4);
-        drawGraphicsIndexes(ctxDebugB, 32);
+        if (indexesVisible) {
+            drawGraphicsIndexes(ctxDebugB, 32);
+        }
 
         renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
         ctxDebugA.putImageData(imgDataDebugBackground, 0, 0);
@@ -183,3 +187,15 @@ export function resume() {
 export function isPaused() {
     return paused;
 }
+
+export function showIndexes() {
+    indexesVisible = true;
+}
+
+export function hideIndexes() {
+    indexesVisible = false;
+}
+
+export function isIndexesVisible() {
+    return indexesVisible;
+};

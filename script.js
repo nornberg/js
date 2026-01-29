@@ -107,6 +107,12 @@ function setup() {
       }
     } else if (e.key === " ") { 
       graphics.debug.pause();
+    } else if (e.key === "i") {
+      if (graphics.debug.isIndexesVisible()) {
+        graphics.debug.hideIndexes();
+      } else {
+        graphics.debug.showIndexes();
+      }
     } else return true;
     return false;
   };
