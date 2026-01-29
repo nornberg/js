@@ -8,6 +8,7 @@ let ctxDebugA = null;
 let ctxDebugB = null;
 let imgDataDebugBackground = null;
 let imgDataDebugGraphics = null;
+let imgDataDebugPal = null;
 
 export const AUTOPAUSE_NONE = 0;
 export const AUTOPAUSE_ON_FRAME = 1;
@@ -23,9 +24,10 @@ export function init(aLowlevel) {
     canvasDebugA = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
     canvasDebugB = getCanvas("debugCanvasB", 32 * lowlevel.GRAPHIC_H_SIZE * 4, 32 * lowlevel.GRAPHIC_V_SIZE * 4 + 32 * 13);
     ctxDebugA = createContext(canvasDebugA, "lightblue");
-    ctxDebugB = createContext(canvasDebugB, "lightGreen");
+    ctxDebugB = createContext(canvasDebugB, "gray");
     imgDataDebugBackground = createBuffer(ctxDebugA, canvasDebugA.width, canvasDebugA.height);
     imgDataDebugGraphics = createBuffer(ctxDebugB, 32 * lowlevel.GRAPHIC_H_SIZE, 32 * lowlevel.GRAPHIC_V_SIZE);
+    imgDataDebugPal = createBuffer(ctxDebugB, 24, 9);
 }
 
 function getCanvas(canvasElementName, width, height) {
@@ -61,7 +63,9 @@ export function frame(timestamp) {
         lastTimestamp = timestamp;
 
         renderGraphicsToImgData(lowlevel.graphics, imgDataDebugGraphics, 32);
-        putImageDataScaled(ctxDebugB, imgDataDebugGraphics, 4);
+        putImageDataScaled(ctxDebugB, imgDataDebugGraphics, 4, 0);
+        renderPaletteToImgData(lowlevel.palette, imgDataDebugPal, 24);
+        putImageDataScaled(ctxDebugB, imgDataDebugPal, 32, 32 * lowlevel.GRAPHIC_V_SIZE * 4 + 8);
         if (indexesVisible) {
             drawGraphicsIndexes(ctxDebugB, 32);
         }
@@ -157,14 +161,26 @@ function drawGraphicsIndexes(ctx, graphicsPerLine) {
     }
 }
 
-function putImageDataScaled(ctx, imgData, scale){
+function renderPaletteToImgData(palette, imgData, cols) {
+    for (let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
+        let x = (i % cols);
+        let y = Math.floor(i / cols);
+        let bufIdx = bufferIndex(x, y, imgData.width);
+        let color = palette[i];
+        imgData.data[bufIdx + 0] = color.r;
+        imgData.data[bufIdx + 1] = color.g;
+        imgData.data[bufIdx + 2] = color.b;
+    }
+}
+
+function putImageDataScaled(ctx, imgData, scale, y){
     let tmpCan1 = new OffscreenCanvas(imgData.width, imgData.height);
     let tmpCtx1 = tmpCan1.getContext("2d", { alpha: false, antialias: false, depth: false });
     tmpCtx1.imageSmoothingEnabled = false;
     tmpCtx1.fillStyle = "green";
     tmpCtx1.fillRect(0, 0, tmpCan1.width, tmpCan1.height);
     tmpCtx1.putImageData(imgData, 0, 0);
-    ctx.drawImage(tmpCan1, 0, 0 , tmpCan1.width, tmpCan1.height, 0, 0, tmpCan1.width * scale, tmpCan1.height * scale);
+    ctx.drawImage(tmpCan1, 0, 0 , tmpCan1.width, tmpCan1.height, 0, y, tmpCan1.width * scale, tmpCan1.height * scale);
 }
 
 
