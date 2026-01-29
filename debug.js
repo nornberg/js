@@ -19,7 +19,7 @@ let paused = false;
 export function init(aLowlevel) {
     lowlevel = aLowlevel;    
     canvasDebugA = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-    canvasDebugB = getCanvas("debugCanvasB", 32 * lowlevel.GRAPHIC_H_SIZE, 32 * lowlevel.GRAPHIC_V_SIZE + 32 * 13);
+    canvasDebugB = getCanvas("debugCanvasB", 32 * lowlevel.GRAPHIC_H_SIZE * 4, 32 * lowlevel.GRAPHIC_V_SIZE * 4 + 32 * 13);
     ctxDebugA = createContext(canvasDebugA, "lightblue");
     ctxDebugB = createContext(canvasDebugB, "lightGreen");
     imgDataDebugBackground = createBuffer(ctxDebugA, canvasDebugA.width, canvasDebugA.height);
@@ -59,12 +59,19 @@ export function frame(timestamp) {
         lastTimestamp = timestamp;
 
         renderGraphicsToImgData(lowlevel.graphics, imgDataDebugPalAndGraphics, 32);
-        ctxDebugB.putImageData(imgDataDebugPalAndGraphics, 0, 0);
+        let tmpCan1 = new OffscreenCanvas(32 * lowlevel.GRAPHIC_H_SIZE, 32 * lowlevel.GRAPHIC_V_SIZE);
+        let tmpCtx1 = tmpCan1.getContext("2d", { alpha: false, antialias: false, depth: false });
+        tmpCtx1.imageSmoothingEnabled = false;
+        tmpCtx1.fillStyle = "green";
+        tmpCtx1.fillRect(0, 0, tmpCan1.width, tmpCan1.height);
+        tmpCtx1.putImageData(imgDataDebugPalAndGraphics, 0, 0);
+        ctxDebugB.drawImage(tmpCan1, 0, 0 , tmpCan1.width, tmpCan1.height, 0, 0, 32 * lowlevel.GRAPHIC_H_SIZE * 4, 32 * lowlevel.GRAPHIC_V_SIZE * 4);
+        drawGraphicsIndexes(ctxDebugB, 32);
 
         renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
         ctxDebugA.putImageData(imgDataDebugBackground, 0, 0);
-
         drawScreenBorder(ctxDebugA);
+        
         drawDebugText(ctxDebugA);
     //}
     if (autoPause === AUTOPAUSE_ON_FRAME) {
@@ -142,6 +149,15 @@ function renderGraphicToImgData(gIndex, graphics, imgData, destX, destY) {
     }
 }
 
+function drawGraphicsIndexes(ctx, graphicsPerLine) {
+    ctx.fillStyle = "white";
+    ctx.font = "12px monospace";
+    for (let gIndex = 0; gIndex < lowlevel.GRAPHICS_SIZE; gIndex++) {
+        let x = (gIndex % graphicsPerLine) * lowlevel.GRAPHIC_H_SIZE * 4;
+        let y = Math.floor(gIndex / graphicsPerLine) * lowlevel.GRAPHIC_V_SIZE * 4;
+        ctx.fillText(gIndex.toString().padStart(3, '0'), x + 2, y + 12);
+    }
+}
 
 
 
