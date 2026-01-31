@@ -3,7 +3,34 @@
 import * as lowlevel from "./lowlevel.js";
 import * as graphics from "./graphics.js";
 
+let pos = {x: 10, y: 20};
+let direction = 1;
+
 function setup() {
+  setupGraphics();
+  setupBackground();
+  setupOther();
+  setupKeys();
+}
+
+function frame(timestamp) {
+  lowlevel.setBackgroundTile(pos.x, pos.y, 10);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y, 10);
+  lowlevel.setBackgroundTile(pos.x, pos.y+1, 10);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 10);
+  pos.x = pos.x + direction;
+  if (pos.x <= 5 || pos.x >= 60) {
+    direction = -direction;
+  }
+  lowlevel.setBackgroundTile(pos.x, pos.y, 250);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y, 250);
+  lowlevel.setBackgroundTile(pos.x, pos.y+1, 250);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 250);
+  
+  lowlevel.hdma[0].angle = (timestamp / 50) % 360;
+}
+
+function setupGraphics() {
   lowlevel.setGraphic(250, [
     50,90,90,90,90,90,90,90,
     50,10,10,10,10,10,10,80,
@@ -14,14 +41,6 @@ function setup() {
     80,10,10,10,10,10,10,80,
     80,80,80,80,80,80,80,80,
   ]);
-  lowlevel.background.tilemap.fill(10);
-  lowlevel.setBackgroundTile(18, 7, 250);
-  lowlevel.setBackgroundTile(19, 7, 250);
-  lowlevel.setBackgroundTile(18, 8, 250);
-  lowlevel.setBackgroundTile(19, 8, 250);
-  lowlevel.setBackgroundTile(39, 29, 250);
-  lowlevel.setBackgroundTile(79, 59, 250);
-  lowlevel.setBackgroundTile(79, 1, 250);
   let k = 36;
   for(let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
     lowlevel.setGraphic(i, [
@@ -34,6 +53,20 @@ function setup() {
       i,i,i,i,i,i,i,i,
       i,i,i,i,i,i,i,i,
     ]);
+  }
+}
+
+function setupBackground() {
+  lowlevel.background.tilemap.fill(10);
+  lowlevel.setBackgroundTile(18, 7, 250);
+  lowlevel.setBackgroundTile(19, 7, 250);
+  lowlevel.setBackgroundTile(18, 8, 250);
+  lowlevel.setBackgroundTile(19, 8, 250);
+  lowlevel.setBackgroundTile(39, 29, 250);
+  lowlevel.setBackgroundTile(79, 59, 250);
+  lowlevel.setBackgroundTile(79, 1, 250);
+  let k = 36;
+  for(let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
     lowlevel.setBackgroundTile(1 + i % k, 1 + Math.trunc(i / k), i);
   }
   lowlevel.setBackgroundTile(18, 1, 250);
@@ -45,6 +78,9 @@ function setup() {
       lowlevel.setBackgroundTile(x, 0, 250);
       lowlevel.setBackgroundTile(x, lowlevel.background.tilemapH - 1, 250); 
   };
+}
+
+function setupOther() {
   lowlevel.palette[150] = { r: 0, g: 100, b: 100 };
   lowlevel.setHDMA(0,
   {
@@ -67,7 +103,9 @@ function setup() {
         });
   }
   graphics.debug.setAutoPause(graphics.debug.AUTOPAUSE_ON_FRAME);
+}
 
+function setupKeys() {
   window.onkeydown = function(e) {
     let shiftDown = e.shiftKey; 
     let ctrlKey = e.ctrlKey;
@@ -125,24 +163,6 @@ function setup() {
     } else return true;
     return false;
   };
-}
-
-let pos = {x: 10, y: 20};
-let direction = 1;
-function frame(timestamp) {
-  lowlevel.setBackgroundTile(pos.x, pos.y, 10);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y, 10);
-  lowlevel.setBackgroundTile(pos.x, pos.y+1, 10);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 10);
-  pos.x = pos.x + direction;
-  if (pos.x <= 5 || pos.x >= 60) {
-    direction = -direction;
-  }
-  lowlevel.setBackgroundTile(pos.x, pos.y, 250);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y, 250);
-  lowlevel.setBackgroundTile(pos.x, pos.y+1, 250);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 250);
-  lowlevel.hdma[0].angle = (timestamp / 50) % 360;
 }
 
 function toggleFullscreen(elementName) {
