@@ -12,6 +12,7 @@ let lastTimestampFrameCount = 0;
 let lastTimestampUpdate = 0;
 
 let lowlevel = null;
+let debugText = "-";
 export const debug = debug_;
 
 export function init(canvasElementName, aLowlevel) {
@@ -149,6 +150,10 @@ function copyScanlineToImgData(y, buffer, imgData) {
     }
 }
 
+export function setDebugText(text) {
+    debugText = text;
+}
+
 function showDebugText() {
     ctxScreen.textBaseline = "top";
     ctxScreen.font = "20px monospace";
@@ -160,4 +165,5 @@ function showDebugText() {
     ctxScreen.fillStyle = "white";
     ctxScreen.fillText(s1, 10, 10);
     ctxScreen.fillText(s2, canvasScreen.width - ctxScreen.measureText(s2).width - 10, 10);
+    ctxScreen.fillText(debugText, 10, canvasScreen.height - 30);
 }
