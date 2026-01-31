@@ -6,6 +6,11 @@ import * as graphics from "./graphics.js";
 let pos = {x: 10, y: 20};
 let direction = 1;
 
+let frameCount = 0;
+let fps = 0;
+let lastFrameCountTimestamp = 0;
+let currentTimestamp = performance.now();
+
 function setup() {
   setupGraphics();
   setupBackground();
@@ -13,7 +18,18 @@ function setup() {
   setupKeys();
 }
 
-function frame(timestamp) {
+function frame() {
+  currentTimestamp = performance.now();
+  
+  frameCount++;
+  let deltaFromLastFrameCount = currentTimestamp - lastFrameCountTimestamp;
+  if (deltaFromLastFrameCount >= 1000){
+    fps = frameCount;
+    lastFrameCountTimestamp = currentTimestamp;
+    frameCount = 0;
+  }
+  graphics.setDebugText(`Logic fps: ${fps}`);
+
   lowlevel.setBackgroundTile(pos.x, pos.y, 10);
   lowlevel.setBackgroundTile(pos.x+1, pos.y, 10);
   lowlevel.setBackgroundTile(pos.x, pos.y+1, 10);
@@ -27,7 +43,7 @@ function frame(timestamp) {
   lowlevel.setBackgroundTile(pos.x, pos.y+1, 250);
   lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 250);
   
-  lowlevel.hdma[0].angle = (timestamp / 50) % 360;
+  lowlevel.hdma[0].angle = (currentTimestamp / 50) % 360;
 }
 
 function setupGraphics() {
