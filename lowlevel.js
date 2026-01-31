@@ -118,7 +118,7 @@ export function setHDMA(scanline, hdmaData) {
 
 // ---- INITIALIZATION ROUTINES ----
 
-export function init(aFrameFunction) {
+export function init(aFrameFunction = frame) {
     frame = aFrameFunction;    
 }
 
