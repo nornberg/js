@@ -139,25 +139,15 @@ function setupKeys() {
       if (shiftDown) {
         lowlevel.registers.angle += 1;
       } else {
-        if (lowlevel.registers.scaleX < 1.0) {
-          lowlevel.registers.scaleX += 0.01;
-          lowlevel.registers.scaleY += 0.01;
-        } else {
-          lowlevel.registers.scaleX += 0.1;
-          lowlevel.registers.scaleY += 0.1;
-        }
+        lowlevel.registers.scaleX *= 0.9;
+        lowlevel.registers.scaleY *= 0.9;
       }
     } else if (e.key === "PageDown") {
       if (shiftDown) {
         lowlevel.registers.angle -= 1;
       } else {
-        if (lowlevel.registers.scaleX <= 1.0) {
-          lowlevel.registers.scaleX -= 0.01;
-          lowlevel.registers.scaleY -= 0.01;
-        } else {
-          lowlevel.registers.scaleX -= 0.1;
-          lowlevel.registers.scaleY -= 0.1;
-        }
+        lowlevel.registers.scaleX *= 1.1;
+        lowlevel.registers.scaleY *= 1.1;
       }
     } else if (e.key === " ") { 
       graphics.debug.pause();
