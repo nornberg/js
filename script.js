@@ -140,11 +140,11 @@ function setupKeys() {
         lowlevel.registers.angle += 1;
       } else {
         if (lowlevel.registers.scaleX < 1.0) {
+          lowlevel.registers.scaleX += 0.01;
+          lowlevel.registers.scaleY += 0.01;
+        } else {
           lowlevel.registers.scaleX += 0.1;
           lowlevel.registers.scaleY += 0.1;
-        } else {
-          lowlevel.registers.scaleX += 0.5;
-          lowlevel.registers.scaleY += 0.5;
         }
       }
     } else if (e.key === "PageDown") {
@@ -152,11 +152,11 @@ function setupKeys() {
         lowlevel.registers.angle -= 1;
       } else {
         if (lowlevel.registers.scaleX <= 1.0) {
+          lowlevel.registers.scaleX -= 0.01;
+          lowlevel.registers.scaleY -= 0.01;
+        } else {
           lowlevel.registers.scaleX -= 0.1;
           lowlevel.registers.scaleY -= 0.1;
-        } else {
-          lowlevel.registers.scaleX -= 0.5;
-          lowlevel.registers.scaleY -= 0.5;
         }
       }
     } else if (e.key === " ") { 

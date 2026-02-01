@@ -110,7 +110,7 @@ function drawScreenBorder(ctx) {
 
 function drawDebugText(ctx) {
     let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
-    let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(0)}x${lowlevel.registers.scaleY.toFixed(0)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
+    let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(3)}x${lowlevel.registers.scaleY.toFixed(3)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
     let debug_line_3 = `${lowlevel.registers.angle.toFixed(2)}º  ${paused}`;
     ctx.fillStyle = "white";
     ctx.font = "24px monospace";
@@ -183,7 +183,6 @@ function putImageDataScaled(ctx, imgData, scale, y) {
     tmpCtx1.putImageData(imgData, 0, 0);
     ctx.drawImage(tmpCan1, 0, 0 , tmpCan1.width, tmpCan1.height, 0, y, tmpCan1.width * scale, tmpCan1.height * scale);
 }
-
 
 function bufferIndex(x, y, width) {
     return 4 * (y * width + x);
