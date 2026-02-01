@@ -31,6 +31,8 @@ function createCanvasScreen(canvasElementName, width, height) {
     canvasScreen.width = width;
     canvasScreen.height = height;
     canvasScreen.style.imageRendering = "pixelated";
+    canvasScreen.style.width = (width * 2) + "px";
+    canvasScreen.style.height = (height * 2) + "px";
     ctxScreen = canvasScreen.getContext("2d", { alpha: false, antialias: false, depth: false });
     ctxScreen.imageSmoothingEnabled = false;
     imgDataLine = ctxScreen.createImageData(lowlevel.SCREEN_WIDTH, 1);

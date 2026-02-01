@@ -5,21 +5,22 @@
 export const PALETTE_SIZE = 216 + 1; // índice 216 é a cor transparente.
 export const TRANSP_COLOR_INDEX = 216;
 
-export const SCREEN_WIDTH = 640;
-export const SCREEN_HEIGHT = 480;
+export const SCREEN_WIDTH = 320;
+export const SCREEN_HEIGHT = 240;
 export const COLUMNS = SCREEN_WIDTH;
 export const SCANLINES = SCREEN_HEIGHT;
 
-export const TILEMAP_H_SIZE = 160;
-export const TILEMAP_V_SIZE = 120;
 
-export const OBJECTS_SIZE = 250;
+export const OBJECTS_SIZE = 8 * 8; // OAM com 64 objetos
 export const OBJECT_H_SIZE = 1;
 export const OBJECT_V_SIZE = 1;
 
-export const GRAPHICS_SIZE = 1024;
+export const GRAPHICS_SIZE = 16 * 16; // pattern table com 256 gráficos
 export const GRAPHIC_H_SIZE = 8;
 export const GRAPHIC_V_SIZE = 8;
+
+export const TILEMAP_H_SIZE = SCREEN_WIDTH / GRAPHIC_H_SIZE * 2;
+export const TILEMAP_V_SIZE = SCREEN_HEIGHT / GRAPHIC_V_SIZE * 2;
 
 export const SCREEN_CENTER_X = SCREEN_WIDTH / 2;
 export const SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;
