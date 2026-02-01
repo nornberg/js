@@ -14,6 +14,14 @@ export const AUTOPAUSE_NONE = 0;
 export const AUTOPAUSE_ON_FRAME = 1;
 export const AUTOPAUSE_ON_SCANLINE = 2;
 
+let PATTERN_TABLE_COLS = 16;
+let PATTERN_TABLE_ROWS = 1;
+let PATTERN_TABLE_SCALE = 1;
+let PATTERN_TILE__SCALED = 8 * PATTERN_TABLE_SCALE;
+
+let PAL_TABLE_COLS = 16;
+let PAL_TABLE_ROWS = 1;
+
 let autoPause = AUTOPAUSE_ON_FRAME;
 let paused = false;
 
@@ -22,13 +30,14 @@ let indexesVisible = false;
 
 export function init(aLowlevel) {
     lowlevel = aLowlevel;    
+    PATTERN_TABLE_ROWS = Math.ceil(lowlevel.GRAPHICS_SIZE / PATTERN_TABLE_COLS);
     canvasDebugA = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-    canvasDebugB = getCanvas("debugCanvasB", 32 * lowlevel.GRAPHIC_H_SIZE * 4, 32 * lowlevel.GRAPHIC_V_SIZE * 4 + 32 * 13);
+    canvasDebugB = getCanvas("debugCanvasB", PATTERN_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE, PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE);
     ctxDebugA = createContext(canvasDebugA, "lightblue");
-    ctxDebugB = createContext(canvasDebugB, "gray");
+    ctxDebugB = createContext(canvasDebugB, "#555555");
     imgDataDebugBackground = createBuffer(ctxDebugA, canvasDebugA.width, canvasDebugA.height);
-    imgDataDebugGraphics = createBuffer(ctxDebugB, 32 * lowlevel.GRAPHIC_H_SIZE, 32 * lowlevel.GRAPHIC_V_SIZE);
-    imgDataDebugPal = createBuffer(ctxDebugB, 24, 9);
+    imgDataDebugGraphics = createBuffer(ctxDebugB, PATTERN_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE, PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE);
+    imgDataDebugPal = createBuffer(ctxDebugB, PAL_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE, PAL_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE);
 }
 
 function getCanvas(canvasElementName, width, height) {
@@ -63,12 +72,12 @@ export function frame(timestamp) {
     //if (timestamp - lastTimestamp >= 10) {
         lastTimestamp = timestamp;
 
-        renderGraphicsToImgData(lowlevel.graphics, imgDataDebugGraphics, 32);
-        putImageDataScaled(ctxDebugB, imgDataDebugGraphics, 4, 0);
-        renderPaletteToImgData(lowlevel.palette, imgDataDebugPal, 24);
-        putImageDataScaled(ctxDebugB, imgDataDebugPal, 32, 32 * lowlevel.GRAPHIC_V_SIZE * 4 + 8);
+        renderGraphicsToImgData(lowlevel.graphics, imgDataDebugGraphics, PATTERN_TABLE_COLS);
+        putImageDataScaled(ctxDebugB, imgDataDebugGraphics, PATTERN_TABLE_SCALE, 0);
+        //renderPaletteToImgData(lowlevel.palette, imgDataDebugPal, 24);
+        //putImageDataScaled(ctxDebugB, imgDataDebugPal, PATTERN_TILE__SCALED, PATTERN_TILE__SCALED * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE + 8);
         if (indexesVisible) {
-            drawGraphicsIndexes(ctxDebugB, 32);
+            drawGraphicsIndexes(ctxDebugB, PATTERN_TILE__SCALED);
         }
 
         renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
