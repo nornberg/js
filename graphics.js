@@ -131,8 +131,23 @@ function mapScanlineToScreen(y, bufferBg, bufferScreen) {
         let yr = xx * sin + yy * cos;
         xx = Math.round( (xr + x0) * lowlevel.SCREEN_WIDTH);
         yy = Math.round( (yr + y0) * lowlevel.SCREEN_WIDTH);
-        if (xx >= 0 && xx < (lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE) && yy >= 0 && yy < (lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE)) {
-            bufferScreen[y * lowlevel.SCREEN_WIDTH + x] = bufferBg[yy * (lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE) + xx];
+
+        let backgroundWidth = lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE;
+        let backgroundHeight = lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE;
+
+        if (xx >= backgroundWidth) {
+            xx -= Math.trunc( xx / backgroundWidth) * backgroundWidth;
+        } else if (xx < 0) {
+            xx += Math.trunc( -xx / backgroundWidth + 1) * backgroundWidth;
+        }
+        if (yy >= backgroundHeight) {
+            yy -= Math.trunc( yy / backgroundHeight) * backgroundHeight;
+        } else if (yy < 0) {
+            yy += Math.trunc( -yy / backgroundHeight + 1) * backgroundHeight;
+        }
+        
+        if (xx >= 0 && xx < backgroundWidth && yy >= 0 && yy < backgroundHeight) {
+            bufferScreen[y * lowlevel.SCREEN_WIDTH + x] = bufferBg[yy * backgroundWidth + xx];
         } else {
             bufferScreen[y * lowlevel.SCREEN_WIDTH + x] = lowlevel.TRANSP_COLOR_INDEX;
         }
