@@ -30,24 +30,39 @@ function frame() {
   }
   graphics.setDebugText(`Logic fps: ${fps}`);
 
-  lowlevel.setBackgroundTile(pos.x, pos.y, 10);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y, 10);
-  lowlevel.setBackgroundTile(pos.x, pos.y+1, 10);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 10);
+  lowlevel.setBackgroundTile(pos.x, pos.y, 0);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y, 0);
+  lowlevel.setBackgroundTile(pos.x, pos.y+1, 0);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 0);
   pos.x = pos.x + direction;
   if (pos.x <= 5 || pos.x >= 60) {
     direction = -direction;
   }
-  lowlevel.setBackgroundTile(pos.x, pos.y, 250);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y, 250);
-  lowlevel.setBackgroundTile(pos.x, pos.y+1, 250);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 250);
+  lowlevel.setBackgroundTile(pos.x, pos.y, 255);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y, 255);
+  lowlevel.setBackgroundTile(pos.x, pos.y+1, 255);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 255);
   
   lowlevel.hdma[0].angle = (currentTimestamp / 50) % 360;
 }
 
 function setupGraphics() {
-  lowlevel.setGraphic(250, [
+  for (let y = 0; y < lowlevel.GRAPHICS_SIZE / 16; y++) {
+    for(let x = 0; x < 16; x++) {
+      let c = (x % lowlevel.PALETTE_COUNT) * lowlevel.PALETTE_COLORS + (y % lowlevel.PALETTE_COLORS);
+      lowlevel.setGraphic(y * 16 + x, [
+        c,c,c,c,c,c,c,c,
+        c,c,c,c,c,c,c,c,
+        c,c,c,c,c,c,c,c,
+        c,c,c,c,c,c,c,c,
+        c,c,c,c,c,c,c,c,
+        c,c,c,c,c,c,c,c,
+        c,c,c,c,c,c,c,c,
+        c,c,c,c,c,c,c,c,
+      ]);
+    }
+  }
+  lowlevel.setGraphic(255, [
     50,90,90,90,90,90,90,90,
     50,10,10,10,10,10,10,80,
     50,10,20,20,20,20,10,80,
@@ -57,47 +72,33 @@ function setupGraphics() {
     80,10,10,10,10,10,10,80,
     80,80,80,80,80,80,80,80,
   ]);
-  let k = 36;
-  for(let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
-    lowlevel.setGraphic(i, [
-      i,i,i,i,i,i,i,i,
-      i,i,i,i,i,i,i,i,
-      i,i,i,i,i,i,i,i,
-      i,i,i,i,i,i,i,i,
-      i,i,i,i,i,i,i,i,
-      i,i,i,i,i,i,i,i,
-      i,i,i,i,i,i,i,i,
-      i,i,i,i,i,i,i,i,
-    ]);
-  }
 }
 
 function setupBackground() {
   lowlevel.background.tilemap.fill(10);
-  lowlevel.setBackgroundTile(18, 7, 250);
-  lowlevel.setBackgroundTile(19, 7, 250);
-  lowlevel.setBackgroundTile(18, 8, 250);
-  lowlevel.setBackgroundTile(19, 8, 250);
-  lowlevel.setBackgroundTile(39, 29, 250);
-  lowlevel.setBackgroundTile(79, 59, 250);
-  lowlevel.setBackgroundTile(79, 1, 250);
-  let k = 36;
-  for(let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
+  lowlevel.setBackgroundTile(18, 7, 255);
+  lowlevel.setBackgroundTile(19, 7, 255);
+  lowlevel.setBackgroundTile(18, 8, 255);
+  lowlevel.setBackgroundTile(19, 8, 255);
+  lowlevel.setBackgroundTile(39, 29, 255);
+  lowlevel.setBackgroundTile(79, 59, 255);
+  lowlevel.setBackgroundTile(79, 1, 255);
+  let k = 32;
+  for(let i = 0; i < lowlevel.PALETTE_COLORS * lowlevel.PALETTE_COUNT; i++) {
     lowlevel.setBackgroundTile(1 + i % k, 1 + Math.trunc(i / k), i);
   }
-  lowlevel.setBackgroundTile(18, 1, 250);
+  lowlevel.setBackgroundTile(18, 1, 255);
   for (let y = 0; y < lowlevel.background.tilemapH; y++) {
-      lowlevel.setBackgroundTile(0, y, 250);
-      lowlevel.setBackgroundTile(lowlevel.background.tilemapW - 1, y, 250);
+      lowlevel.setBackgroundTile(0, y, 255);
+      lowlevel.setBackgroundTile(lowlevel.background.tilemapW - 1, y, 255);
   }
   for (let x = 0; x < lowlevel.background.tilemapW; x++) {
-      lowlevel.setBackgroundTile(x, 0, 250);
-      lowlevel.setBackgroundTile(x, lowlevel.background.tilemapH - 1, 250); 
+      lowlevel.setBackgroundTile(x, 0, 255);
+      lowlevel.setBackgroundTile(x, lowlevel.background.tilemapH - 1, 255); 
   };
 }
 
 function setupOther() {
-  lowlevel.palette[150] = { r: 0, g: 100, b: 100 };
   lowlevel.setHDMA(0,
   {
       scrollX: 0,
@@ -161,11 +162,7 @@ function setupKeys() {
       graphics.debug.deactivate();
       toggleFullscreen("gamecanvas");
     } else if (e.key === "i") {
-      if (graphics.debug.isIndexesVisible()) {
-        graphics.debug.hideIndexes();
-      } else {
-        graphics.debug.showIndexes();
-      }
+      graphics.debug.cycleIndexesVisibility();
     } else return true;
     return false;
   };
