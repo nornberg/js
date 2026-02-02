@@ -16,27 +16,29 @@ export const AUTOPAUSE_ON_SCANLINE = 2;
 
 let PATTERN_TABLE_COLS = 16;
 let PATTERN_TABLE_ROWS = 1;
-let PATTERN_TABLE_SCALE = 1;
-let PATTERN_TILE__SCALED = 8 * PATTERN_TABLE_SCALE;
+let PATTERN_TABLE_SCALE = 4;
 
-let PAL_TABLE_COLS = 16;
+let PAL_TABLE_COLS = 1;
 let PAL_TABLE_ROWS = 1;
+let PAL_TABLE_SCALE = PATTERN_TABLE_SCALE * 8;
 
 let autoPause = AUTOPAUSE_ON_FRAME;
 let paused = false;
 
 let active = true;
-let indexesVisible = false;
+let indexesVisibility = 0;
 
 export function init(aLowlevel) {
     lowlevel = aLowlevel;    
     PATTERN_TABLE_ROWS = Math.ceil(lowlevel.GRAPHICS_SIZE / PATTERN_TABLE_COLS);
+    PAL_TABLE_COLS = lowlevel.PALETTE_COLORS;
+    PAL_TABLE_ROWS = lowlevel.PALETTE_COUNT;
     canvasDebugA = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-    canvasDebugB = getCanvas("debugCanvasB", PATTERN_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE, PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE);
+    canvasDebugB = getCanvas("debugCanvasB", PATTERN_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE, PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE + PAL_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE + 20);
     ctxDebugA = createContext(canvasDebugA, "lightblue");
     ctxDebugB = createContext(canvasDebugB, "#555555");
     imgDataDebugBackground = createBuffer(ctxDebugA, canvasDebugA.width, canvasDebugA.height);
-    imgDataDebugGraphics = createBuffer(ctxDebugB, PATTERN_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE, PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE);
+    imgDataDebugGraphics = createBuffer(ctxDebugB, PATTERN_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE, PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE);
     imgDataDebugPal = createBuffer(ctxDebugB, PAL_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE, PAL_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE);
 }
 
@@ -67,25 +69,26 @@ export function scanline(y, timestamp) {
     }
 }
 
-let lastTimestamp = 0;
 export function frame(timestamp) {
-    //if (timestamp - lastTimestamp >= 10) {
-        lastTimestamp = timestamp;
+    renderGraphicsToImgData(lowlevel.graphics, imgDataDebugGraphics, PATTERN_TABLE_COLS);
+    putImageDataScaled(ctxDebugB, imgDataDebugGraphics, PATTERN_TABLE_SCALE, 0);
+    renderPaletteToImgData(imgDataDebugPal);
+    putImageDataScaled(ctxDebugB, imgDataDebugPal, PAL_TABLE_SCALE, PATTERN_TABLE_SCALE * PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE + 10);
+    
+    if (indexesVisibility === 2) {
+        ctxDebugB.clearRect(0, 0, canvasDebugB.width, canvasDebugB.height);
+    }
+    if (indexesVisibility > 0) {
+        drawGraphicsIndexes(ctxDebugB, PATTERN_TABLE_COLS);
+        drawPaletteIndexes(ctxDebugB, PATTERN_TABLE_SCALE * PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE + 10);
+    }
 
-        renderGraphicsToImgData(lowlevel.graphics, imgDataDebugGraphics, PATTERN_TABLE_COLS);
-        putImageDataScaled(ctxDebugB, imgDataDebugGraphics, PATTERN_TABLE_SCALE, 0);
-        //renderPaletteToImgData(lowlevel.palette, imgDataDebugPal, 24);
-        //putImageDataScaled(ctxDebugB, imgDataDebugPal, PATTERN_TILE__SCALED, PATTERN_TILE__SCALED * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE + 8);
-        if (indexesVisible) {
-            drawGraphicsIndexes(ctxDebugB, PATTERN_TILE__SCALED);
-        }
+    renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    ctxDebugA.putImageData(imgDataDebugBackground, 0, 0);
+    drawScreenBorder(ctxDebugA);
+    
+    drawDebugText(ctxDebugA);
 
-        renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
-        ctxDebugA.putImageData(imgDataDebugBackground, 0, 0);
-        drawScreenBorder(ctxDebugA);
-        
-        drawDebugText(ctxDebugA);
-    //}
     if (autoPause === AUTOPAUSE_ON_FRAME) {
         paused = true;
     }
@@ -165,21 +168,36 @@ function drawGraphicsIndexes(ctx, graphicsPerLine) {
     ctx.fillStyle = "white";
     ctx.font = "12px monospace";
     for (let gIndex = 0; gIndex < lowlevel.GRAPHICS_SIZE; gIndex++) {
-        let x = (gIndex % graphicsPerLine) * lowlevel.GRAPHIC_H_SIZE * 4;
-        let y = Math.floor(gIndex / graphicsPerLine) * lowlevel.GRAPHIC_V_SIZE * 4;
+        let x = (gIndex % graphicsPerLine) * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE;
+        let y = Math.floor(gIndex / graphicsPerLine) * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE;
         ctx.fillText(gIndex.toString().padStart(3, '0'), x + 2, y + 12);
+        ctx.strokeRect(x, y, lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE, lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE);
     }
 }
 
-function renderPaletteToImgData(palette, imgData, cols) {
-    for (let i = 0; i < lowlevel.PALETTE_SIZE; i++) {
-        let x = (i % cols);
-        let y = Math.floor(i / cols);
-        let bufIdx = bufferIndex(x, y, imgData.width);
-        let color = palette[i];
-        imgData.data[bufIdx + 0] = color.r;
-        imgData.data[bufIdx + 1] = color.g;
-        imgData.data[bufIdx + 2] = color.b;
+function drawPaletteIndexes(ctx, yy) {
+    ctx.fillStyle = "white";
+    ctx.font = "12px monospace";
+    for (let p = 0; p < lowlevel.PALETTE_COUNT; p++) {
+        for (let c = 0; c < lowlevel.PALETTE_COLORS; c++) {
+            let x = c * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE;
+            let y = yy + p * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE;
+            ctx.fillText(c.toString().padStart(3, '0'), x + 2, y + 12);
+            ctx.fillText((p*lowlevel.PALETTE_COLORS+c).toString().padStart(3, '0'), x + 2, y + 24);
+        }
+    }
+}
+
+function renderPaletteToImgData(imgData) {
+    for (let p = 0; p < lowlevel.PALETTE_COUNT; p++) {
+        for (let c = 0; c < lowlevel.PALETTE_COLORS; c++) {
+            let bufIdx = bufferIndex(c, p, imgData.width);
+            let color = lowlevel.palette[p * lowlevel.PALETTE_COLORS + c];
+            imgData.data[bufIdx + 0] = color.r;
+            imgData.data[bufIdx + 1] = color.g;
+            imgData.data[bufIdx + 2] = color.b;
+            imgData.data[bufIdx + 3] = 255;
+        }
     }
 }
 
@@ -213,17 +231,9 @@ export function isPaused() {
     return paused;
 }
 
-export function showIndexes() {
-    indexesVisible = true;
+export function cycleIndexesVisibility() {
+    indexesVisibility = (indexesVisibility + 1) % 3;
 }
-
-export function hideIndexes() {
-    indexesVisible = false;
-}
-
-export function isIndexesVisible() {
-    return indexesVisible;
-};
 
 export function activate() {
     active = true;
