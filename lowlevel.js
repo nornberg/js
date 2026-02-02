@@ -2,7 +2,8 @@
 
 // ---- CONSTANTS ----
 
-export const PALETTE_SIZE = 216 + 1; // índice 216 é a cor transparente.
+export const PALETTE_COUNT = 6;
+export const PALETTE_COLORS = 16;
 export const TRANSP_COLOR_INDEX = 216;
 
 export const SCREEN_WIDTH = 320;
@@ -15,7 +16,7 @@ export const OBJECTS_SIZE = 8 * 8; // OAM com 64 objetos
 export const OBJECT_H_SIZE = 1;
 export const OBJECT_V_SIZE = 1;
 
-export const GRAPHICS_SIZE = 16 * 16; // pattern table com 256 gráficos
+export const GRAPHICS_SIZE = 16 * 20; // pattern table com 320 gráficos
 export const GRAPHIC_H_SIZE = 8;
 export const GRAPHIC_V_SIZE = 8;
 
@@ -27,7 +28,7 @@ export const SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;
 
 // ---- TABLES ----
 
-export const palette = setDefaultPalette(PALETTE_SIZE);
+export const palette = setDefaultPalette();
 export const background = setDefaultBackground(TILEMAP_H_SIZE, TILEMAP_V_SIZE);
 export const objects = setDefaultObjects(OBJECTS_SIZE, OBJECT_H_SIZE, OBJECT_V_SIZE);
 export const graphics = new Uint8Array(GRAPHICS_SIZE * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE);
@@ -123,18 +124,36 @@ export function init(aFrameFunction = frame) {
     frame = aFrameFunction;    
 }
 
-function setDefaultPalette(size) {
+function setDefaultPalette() {
+    let dark = 0.4;
+    let bright = 1.0;
+    let basePal = [
+        { r: 0, g: 0, b: 0 },
+        { r: dark, g: 0, b: 0 },
+        { r: 0, g: dark, b: 0 },
+        { r: 0, g: 0, b: dark },
+        { r: dark, g: dark, b: 0 },
+        { r: dark, g: 0, b: dark },
+        { r: 0, g: dark, b: dark },
+        { r: dark, g: dark, b: dark },
+        { r: bright/2, g: bright/2, b: bright/2 },
+        { r: bright, g: 0, b: 0 },
+        { r: 0, g: bright, b: 0 },
+        { r: 0, g: 0, b: bright },
+        { r: bright, g: bright, b: 0 },
+        { r: bright, g: 0, b: bright },
+        { r: 0, g: bright, b: bright },
+        { r: bright, g: bright, b: bright },
+    ];
     let palette = [];
-    let step = Math.cbrt(size - 1);
-    let mult = 255 / (step-1);
-    for (let r = 0; r < step; r++){
-        for (let g = 0; g < step; g++){
-            for (let b = 0; b < step; b++){
-                palette.push({r: Math.trunc(r*mult), g: Math.trunc(g*mult), b: Math.trunc(b*mult)});
-            }
+    for (let p = 0; p < PALETTE_COUNT-1; p++) {
+        for (let c = 0; c < PALETTE_COLORS; c++) {
+            palette.push({r: basePal[c].r * (p+1) * 51, g: basePal[c].g * (p+1) * 51, b: basePal[c].b * (p+1) * 51});
         }
     }
-    palette.push({r: 255, g: 0, b: 255}); // cor transparente
+    for (let c = 0; c < PALETTE_COLORS; c++) {
+        palette.push({r: c*17, g: c*17, b: c*17});
+    }
     return palette;
 }
 
