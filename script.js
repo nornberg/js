@@ -62,6 +62,7 @@ function setupGraphics() {
       ]);
     }
   }
+  // TODO: trocar todos gráficos para cores entre 0 e 15, para caber em uma paleta.
   lowlevel.setGraphic(255, [
     1, 2, 2, 2, 2, 2, 2, 2,
     1, 3, 3, 3, 3, 3, 3, 8,
