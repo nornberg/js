@@ -33,9 +33,9 @@ export function init(aLowlevel) {
     PATTERN_TABLE_ROWS = Math.ceil(lowlevel.GRAPHICS_SIZE / PATTERN_TABLE_COLS);
     PAL_TABLE_COLS = lowlevel.PALETTE_COLORS;
     PAL_TABLE_ROWS = lowlevel.PALETTE_COUNT;
-    canvasDebugA = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    canvasDebugA = getCanvas("debugCanvasA", lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE + 100);
     canvasDebugB = getCanvas("debugCanvasB", PATTERN_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE, PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE + PAL_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE + 20);
-    ctxDebugA = createContext(canvasDebugA, "lightblue");
+    ctxDebugA = createContext(canvasDebugA, "#555555");
     ctxDebugB = createContext(canvasDebugB, "#555555");
     imgDataDebugBackground = createBuffer(ctxDebugA, canvasDebugA.width, canvasDebugA.height);
     imgDataDebugGraphics = createBuffer(ctxDebugB, PATTERN_TABLE_COLS * lowlevel.GRAPHIC_H_SIZE, PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE);
@@ -122,13 +122,13 @@ function drawScreenBorder(ctx) {
 
 function drawDebugText(ctx) {
     let debug_line_1 = `[${lowlevel.registers.scrollX}, ${lowlevel.registers.scrollY}] (${lowlevel.registers.centerX}, ${lowlevel.registers.centerY})`;
-    let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(3)}x${lowlevel.registers.scaleY.toFixed(3)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
+    let debug_line_2 = `${lowlevel.registers.scaleX.toFixed(3)} x ${lowlevel.registers.scaleY.toFixed(3)} ${lowlevel.registers.shearX.toFixed(0)}/${lowlevel.registers.shearY.toFixed(0)}`;
     let debug_line_3 = `${lowlevel.registers.angle.toFixed(2)}º  ${paused}`;
     ctx.fillStyle = "white";
-    ctx.font = "24px monospace";
-    ctx.fillText(debug_line_1, 10, 500);
-    ctx.fillText(debug_line_2, 10, 530);
-    ctx.fillText(debug_line_3, 10, 560);
+    ctx.font = "20px monospace";
+    ctx.fillText(debug_line_1, 10, 510);
+    ctx.fillText(debug_line_2, 10, 535);
+    ctx.fillText(debug_line_3, 10, 555);
 }
 
 function renderPixelsToImgData(imgData, pixels, width, height) {
