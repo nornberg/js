@@ -146,7 +146,7 @@ function setDefaultPalette() {
         { r: bright, g: bright, b: bright },
     ];
     let palette = [];
-    for (let p = 0; p < PALETTE_COUNT-1; p++) {
+    for (let p = PALETTE_COUNT-2; p >= 0; p--) {
         for (let c = 0; c < PALETTE_COLORS; c++) {
             palette.push({r: basePal[c].r * (p+1) * 51, g: basePal[c].g * (p+1) * 51, b: basePal[c].b * (p+1) * 51});
         }
