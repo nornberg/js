@@ -173,14 +173,14 @@ export function setDebugText(text) {
 
 function showDebugText() {
     ctxScreen.textBaseline = "top";
-    ctxScreen.font = "20px monospace";
+    ctxScreen.font = "10px monospace";
     let s1 = "TESTE. " + (Math.random()*1000).toFixed(0);
     let s2 = fps + ' fps';
     ctxScreen.fillStyle = "blue";
-    ctxScreen.fillRect(10, 10, ctxScreen.measureText(s1).width, parseInt(ctxScreen.font, 10));
+    //ctxScreen.fillRect(10, 10, ctxScreen.measureText(s1).width, parseInt(ctxScreen.font, 10));
     ctxScreen.fillRect(canvasScreen.width - ctxScreen.measureText(s2).width - 10, 10, ctxScreen.measureText(s2).width, parseInt(ctxScreen.font, 10));
     ctxScreen.fillStyle = "white";
-    ctxScreen.fillText(s1, 10, 10);
+    //ctxScreen.fillText(s1, 10, 10);
     ctxScreen.fillText(s2, canvasScreen.width - ctxScreen.measureText(s2).width - 10, 10);
-    ctxScreen.fillText(debugText, 10, canvasScreen.height - 30);
+    ctxScreen.fillText(debugText, 10, canvasScreen.height - 15);
 }
