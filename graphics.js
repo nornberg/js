@@ -159,6 +159,9 @@ function mapScanlineToScreen(y, bufferBg, bufferScreen) {
 function copyScanlineToImgData(y, buffer, imgData) {
     for (let x = 0; x < lowlevel.SCREEN_WIDTH; x++) {
         let colorIndex = buffer[y * lowlevel.SCREEN_WIDTH + x];
+        if (colorIndex >= lowlevel.PALETTE_COLORS * lowlevel.PALETTE_COUNT) {
+            colorIndex = 0;
+        }
         let paletteColor = lowlevel.palette[colorIndex];
         let bufferIdx = bufferIndex(x, 0, lowlevel.SCREEN_WIDTH);
         imgData.data[bufferIdx + 0] = paletteColor.r;
