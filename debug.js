@@ -182,8 +182,10 @@ function drawPaletteIndexes(ctx, yy) {
         for (let c = 0; c < lowlevel.PALETTE_COLORS; c++) {
             let x = c * lowlevel.GRAPHIC_H_SIZE * PATTERN_TABLE_SCALE;
             let y = yy + p * lowlevel.GRAPHIC_V_SIZE * PATTERN_TABLE_SCALE;
-            ctx.fillText(c.toString().padStart(3, '0'), x + 2, y + 12);
             ctx.fillText((p*lowlevel.PALETTE_COLORS+c).toString().padStart(3, '0'), x + 2, y + 24);
+            if (c === 0) {
+                ctx.fillText(p, x + 2, y + 12);
+            }
         }
     }
 }
@@ -192,11 +194,10 @@ function renderPaletteToImgData(imgData) {
     for (let p = 0; p < lowlevel.PALETTE_COUNT; p++) {
         for (let c = 0; c < lowlevel.PALETTE_COLORS; c++) {
             let bufIdx = bufferIndex(c, p, imgData.width);
-            let color = lowlevel.palette[p * lowlevel.PALETTE_COLORS + c];
+            let color = lowlevel.palettes[p][c];
             imgData.data[bufIdx + 0] = color.r;
             imgData.data[bufIdx + 1] = color.g;
             imgData.data[bufIdx + 2] = color.b;
-            imgData.data[bufIdx + 3] = 255;
         }
     }
 }

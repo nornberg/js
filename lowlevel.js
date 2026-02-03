@@ -11,7 +11,6 @@ export const SCREEN_HEIGHT = 240;
 export const COLUMNS = SCREEN_WIDTH;
 export const SCANLINES = SCREEN_HEIGHT;
 
-
 export const OBJECTS_SIZE = 8 * 8; // OAM com 64 objetos
 export const OBJECT_H_SIZE = 1;
 export const OBJECT_V_SIZE = 1;
@@ -29,6 +28,7 @@ export const SCREEN_CENTER_Y = SCREEN_HEIGHT / 2;
 // ---- TABLES ----
 
 export const palette = setDefaultPalette();
+export const palettes = setDefaultPalettes();
 export const background = setDefaultBackground(TILEMAP_H_SIZE, TILEMAP_V_SIZE);
 export const objects = setDefaultObjects(OBJECTS_SIZE, OBJECT_H_SIZE, OBJECT_V_SIZE);
 export const graphics = new Uint8Array(GRAPHICS_SIZE * GRAPHIC_H_SIZE * GRAPHIC_V_SIZE);
@@ -148,13 +148,50 @@ function setDefaultPalette() {
     let palette = [];
     for (let p = PALETTE_COUNT-2; p >= 0; p--) {
         for (let c = 0; c < PALETTE_COLORS; c++) {
-            palette.push({r: basePal[c].r * (p+1) * 51, g: basePal[c].g * (p+1) * 51, b: basePal[c].b * (p+1) * 51});
+            palette.push({r: basePal[c].r * (p+1) * 51, g: 51, b: 50});
         }
     }
     for (let c = 0; c < PALETTE_COLORS; c++) {
         palette.push({r: c*17, g: c*17, b: c*17});
     }
     return palette;
+}
+
+function setDefaultPalettes() {
+    let dark = 0.4;
+    let bright = 1.0;
+    let basePal = [
+        { r: 0, g: 0, b: 0 },
+        { r: dark, g: 0, b: 0 },
+        { r: 0, g: dark, b: 0 },
+        { r: 0, g: 0, b: dark },
+        { r: dark, g: dark, b: 0 },
+        { r: dark, g: 0, b: dark },
+        { r: 0, g: dark, b: dark },
+        { r: dark, g: dark, b: dark },
+        { r: bright/2, g: bright/2, b: bright/2 },
+        { r: bright, g: 0, b: 0 },
+        { r: 0, g: bright, b: 0 },
+        { r: 0, g: 0, b: bright },
+        { r: bright, g: bright, b: 0 },
+        { r: bright, g: 0, b: bright },
+        { r: 0, g: bright, b: bright },
+        { r: bright, g: bright, b: bright },
+    ];
+    let palettes = [];
+    for (let p = PALETTE_COUNT-2; p >= 0; p--) {
+        let palette = [];
+        for (let c = 0; c < PALETTE_COLORS; c++) {
+            palette.push({r: basePal[c].r * (p+1) * 51, g: basePal[c].g * (p+1) * 51, b: basePal[c].b * (p+1) * 51});
+        }
+        palettes.push(palette);
+    }
+    let palette = [];
+    for (let c = 0; c < PALETTE_COLORS; c++) {
+        palette.push({r: c*17, g: c*17, b: c*17});
+    }
+    palettes.push(palette);
+    return palettes;
 }
 
 function setDefaultBackground(tilemapHSize, tilemapVSize) {
