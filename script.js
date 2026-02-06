@@ -2,6 +2,7 @@
 
 import * as lowlevel from "./lowlevel.js";
 import * as graphics from "./graphics.js";
+import * as importPng from "./importPng.js";
 
 let pos = {x: 10, y: 20};
 let direction = 1;
@@ -198,6 +199,8 @@ function main() {
   lowlevel.init(frame);
   graphics.init("gamecanvas", lowlevel);
   setup();
+  importPng.importTileMap(graphics.ctxScreen);
+  //graphics.start();
 }
 
 main();
