@@ -3,7 +3,7 @@
 import * as debug_ from "./debug.js";
 
 let canvasScreen = null;
-let ctxScreen = null;
+export let ctxScreen = null;
 let imgDataLine = null;
 
 let fps = 0;
@@ -19,6 +19,9 @@ export function init(canvasElementName, aLowlevel) {
     lowlevel = aLowlevel;
     createCanvasScreen(canvasElementName, lowlevel.SCREEN_WIDTH, lowlevel.SCREEN_HEIGHT);
     debug.init(lowlevel, canvasScreen, canvasScreen);
+}
+
+export function start() {
     window.requestAnimationFrame(frame);
 }
 
