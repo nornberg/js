@@ -55,6 +55,12 @@ export const screenPixels = new Uint8ClampedArray(SCREEN_WIDTH * SCREEN_HEIGHT);
 
 export let frame = function(timestamp) {};
 
+// ---- PALETTE ROUTINES ----
+
+export function setPalette(palIndex, paletteData) {
+    palettes[palIndex] = paletteData;
+}
+
 // ---- GRAPHICS ROUTINES ----
 
 export function setGraphic(graphicIndex, graphicData) {

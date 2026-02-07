@@ -1,6 +1,7 @@
 "use strict";
  
-export function importTileMap(ctx) {
+export function importTileMap(lowlevel, graphics) {
+    let ctx = graphics.ctxScreen;
     let tileMapCanvas = null;
     let tileMapCtx = null;
     let tileMapImage = new Image();
@@ -48,6 +49,13 @@ export function importTileMap(ctx) {
             }
         }
         ctx.putImageData(imgDataReduced, 0, 0);
+        graphics.setDebugText(`Imported tile map with ${palette.length} colors.`);
+        graphics.showDebugText();
+
+        while (palette.length < lowlevel.PALETTE_COLORS) {
+            palette.push({r: 0, g: 0, b: 0});
+        }
+        lowlevel.setPalette(0, palette);
     }
     tileMapImage.src = "/megaman_map_01.png";
  }

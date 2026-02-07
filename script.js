@@ -29,7 +29,7 @@ function frame() {
     lastFrameCountTimestamp = currentTimestamp;
     frameCount = 0;
   }
-  graphics.setDebugText(`Logic fps: ${fps}`);
+  //graphics.setDebugText(`Logic fps: ${fps}`);
 
   lowlevel.setBackgroundTile(pos.x, pos.y, 0);
   lowlevel.setBackgroundTile(pos.x+1, pos.y, 0);
@@ -199,8 +199,8 @@ function main() {
   lowlevel.init(frame);
   graphics.init("gamecanvas", lowlevel);
   setup();
-  importPng.importTileMap(graphics.ctxScreen);
-  //graphics.start();
+  importPng.importTileMap(lowlevel, graphics);
+  graphics.start();
 }
 
 main();
