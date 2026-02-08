@@ -22,6 +22,8 @@ let PAL_TABLE_COLS = 1;
 let PAL_TABLE_ROWS = 1;
 let PAL_TABLE_SCALE = PATTERN_TABLE_SCALE * 8;
 
+let graphicsPaletteIndex = 0;
+
 let autoPause = AUTOPAUSE_ON_FRAME;
 let paused = false;
 
@@ -136,9 +138,10 @@ function renderPixelsToImgData(imgData, pixels, width, height) {
         for (let x = 0; x < width; x++) {
             let colorIndex = pixels[y * width + x];
             let bufIdx = bufferIndex(x, y, imgData.width);
-            imgData.data[bufIdx + 0] = lowlevel.palette[colorIndex].r;
-            imgData.data[bufIdx + 1] = lowlevel.palette[colorIndex].g;
-            imgData.data[bufIdx + 2] = lowlevel.palette[colorIndex].b;
+            let color = lowlevel.palettes[graphicsPaletteIndex][colorIndex];
+            imgData.data[bufIdx + 0] = color.r;
+            imgData.data[bufIdx + 1] = color.g;
+            imgData.data[bufIdx + 2] = color.b;
         }
     }
 }
@@ -157,9 +160,10 @@ function renderGraphicToImgData(gIndex, graphics, imgData, destX, destY) {
         for (let gx = 0; gx < lowlevel.GRAPHIC_H_SIZE; gx++) {
             let colorIndex = graphics[baseIdx + gy * lowlevel.GRAPHIC_H_SIZE + gx];
             let bufIdx = bufferIndex(destX + gx, destY + gy, imgData.width);
-            imgData.data[bufIdx + 0] = lowlevel.palette[colorIndex].r;
-            imgData.data[bufIdx + 1] = lowlevel.palette[colorIndex].g;
-            imgData.data[bufIdx + 2] = lowlevel.palette[colorIndex].b;
+            let color = lowlevel.palettes[graphicsPaletteIndex][colorIndex];
+            imgData.data[bufIdx + 0] = color.r;
+            imgData.data[bufIdx + 1] = color.g;
+            imgData.data[bufIdx + 2] = color.b;
         }
     }
 }
@@ -246,4 +250,8 @@ export function deactivate() {
 
 export function isActive() {
     return active;
+}
+
+export function cycleGraphicsPalette() {
+    graphicsPaletteIndex = (graphicsPaletteIndex + 1) % lowlevel.PALETTE_COUNT;
 }

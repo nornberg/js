@@ -31,10 +31,10 @@ function frame() {
   }
   //graphics.setDebugText(`Logic fps: ${fps}`);
 
-  lowlevel.setBackgroundTile(pos.x, pos.y, 0);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y, 0);
-  lowlevel.setBackgroundTile(pos.x, pos.y+1, 0);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 0);
+  lowlevel.setBackgroundTile(pos.x, pos.y, 3);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y, 3);
+  lowlevel.setBackgroundTile(pos.x, pos.y+1, 3);
+  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 3);
   pos.x = pos.x + direction;
   if (pos.x <= 5 || pos.x >= 60) {
     direction = -direction;
@@ -50,7 +50,7 @@ function frame() {
 function setupGraphics() {
   for (let y = 0; y < lowlevel.GRAPHICS_SIZE / 16; y++) {
     for(let x = 0; x < 16; x++) {
-      let c = (x % lowlevel.PALETTE_COUNT) * lowlevel.PALETTE_COLORS + (y % lowlevel.PALETTE_COLORS);
+      let c = x % lowlevel.PALETTE_COLORS;
       lowlevel.setGraphic(y * 16 + x, [
         c,c,c,c,c,c,c,c,
         c,c,c,c,c,c,c,c,
@@ -77,7 +77,7 @@ function setupGraphics() {
 }
 
 function setupBackground() {
-  lowlevel.background.tilemap.fill(10);
+  lowlevel.background.tilemap.fill(3);
   lowlevel.setBackgroundTile(18, 7, 255);
   lowlevel.setBackgroundTile(19, 7, 255);
   lowlevel.setBackgroundTile(18, 8, 255);
@@ -165,6 +165,8 @@ function setupKeys() {
       toggleFullscreen("gamecanvas");
     } else if (e.key === "i") {
       graphics.debug.cycleIndexesVisibility();
+    } else if (e.key === "p") {
+      graphics.debug.cycleGraphicsPalette();
     } else return true;
     return false;
   };
@@ -199,7 +201,7 @@ function main() {
   lowlevel.init(frame);
   graphics.init("gamecanvas", lowlevel);
   setup();
-  importPng.importTileMap(lowlevel, graphics);
+  //importPng.importTileMap(lowlevel, graphics);
   graphics.start();
 }
 
