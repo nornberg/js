@@ -67,7 +67,7 @@ function updateScreen(timestamp) {
     let bgTransform = lowlevel.registers;
     for (let y = 0; y < lowlevel.SCANLINES; y++) {
         mapScanlineToScreen(y, lowlevel.backgroundPixels, lowlevel.screenPixels);
-        copyScanlineToImgData(y, lowlevel.screenPixels, imgDataLine);
+        copyScanlineToImgData(y, lowlevel.screenPixels, imgDataLine, lowlevel.palettes[lowlevel.background.paletteIndex]);
         ctxScreen.putImageData(imgDataLine, 0, y);
         if (debug.isActive()) {
             //debug.scanline(y, timestamp);
@@ -159,13 +159,13 @@ function mapScanlineToScreen(y, bufferBg, bufferScreen) {
     }
 }
 
-function copyScanlineToImgData(y, buffer, imgData) {
+function copyScanlineToImgData(y, buffer, imgData, palette) {
     for (let x = 0; x < lowlevel.SCREEN_WIDTH; x++) {
         let colorIndex = buffer[y * lowlevel.SCREEN_WIDTH + x];
         if (colorIndex >= lowlevel.PALETTE_COLORS * lowlevel.PALETTE_COUNT) {
             colorIndex = 0;
         }
-        let paletteColor = lowlevel.palette[colorIndex];
+        let paletteColor = palette[colorIndex];
         let bufferIdx = bufferIndex(x, 0, lowlevel.SCREEN_WIDTH);
         imgData.data[bufferIdx + 0] = paletteColor.r;
         imgData.data[bufferIdx + 1] = paletteColor.g;
@@ -183,7 +183,7 @@ export function showDebugText() {
     let s1 = "TESTE. " + (Math.random()*1000).toFixed(0);
     let s2 = fps + ' fps';
     ctxScreen.fillStyle = "blue";
-    ctxScreen.fillRect(10, 10, ctxScreen.measureText(s1).width, parseInt(ctxScreen.font, 10));
+    //ctxScreen.fillRect(10, 10, ctxScreen.measureText(s1).width, parseInt(ctxScreen.font, 10));
     ctxScreen.fillRect(canvasScreen.width - ctxScreen.measureText(s2).width - 10, 10, ctxScreen.measureText(s2).width, parseInt(ctxScreen.font, 10));
     ctxScreen.fillRect(10, canvasScreen.height - 15, ctxScreen.measureText(debugText).width, parseInt(ctxScreen.font, 10));
     ctxScreen.fillStyle = "white";

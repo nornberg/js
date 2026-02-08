@@ -85,7 +85,7 @@ export function frame(timestamp) {
         drawPaletteIndexes(ctxDebugB, PATTERN_TABLE_SCALE * PATTERN_TABLE_ROWS * lowlevel.GRAPHIC_V_SIZE + 10);
     }
 
-    renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE);
+    renderPixelsToImgData(imgDataDebugBackground, lowlevel.backgroundPixels, lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE, lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE, lowlevel.palettes[lowlevel.background.paletteIndex]);
     ctxDebugA.putImageData(imgDataDebugBackground, 0, 0);
     drawScreenBorder(ctxDebugA);
     
@@ -133,12 +133,12 @@ function drawDebugText(ctx) {
     ctx.fillText(debug_line_3, 10, 555);
 }
 
-function renderPixelsToImgData(imgData, pixels, width, height) {
+function renderPixelsToImgData(imgData, pixels, width, height, palette) {
     for (let y = 0; y < height; y++) {
         for (let x = 0; x < width; x++) {
             let colorIndex = pixels[y * width + x];
             let bufIdx = bufferIndex(x, y, imgData.width);
-            let color = lowlevel.palettes[graphicsPaletteIndex][colorIndex];
+            let color = palette[colorIndex];
             imgData.data[bufIdx + 0] = color.r;
             imgData.data[bufIdx + 1] = color.g;
             imgData.data[bufIdx + 2] = color.b;

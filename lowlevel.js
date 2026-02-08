@@ -205,6 +205,7 @@ function setDefaultBackground(tilemapHSize, tilemapVSize) {
         tilemapW: tilemapHSize,
         tilemapH: tilemapVSize,
         tilemap: new Uint8Array(tilemapHSize * tilemapVSize),
+        paletteIndex: 0,
         transform: {
             tx: 0, // translation
             ty: 0,
