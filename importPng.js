@@ -12,10 +12,16 @@ export function importTileMap(lowlevel, graphics) {
     let [imgDataSrc, imgDataReduced] = createTileMapImageData(tileMapImage);
     let [indexedBuffer, palette] = convertToIndexedColor(imgDataSrc, lowlevel.PALETTE_COLORS);
     lowlevel.setPalette(0, palette);
-    let tiles = extractTiles(indexedBuffer, lowlevel, tileMapImage.width, tileMapImage.height);
+    let [tiles, tileMap] = extractTiles(indexedBuffer, lowlevel, tileMapImage.width, tileMapImage.height);
     tiles.forEach((tile, index) => {
         lowlevel.setGraphic(index, tile);
     });
+    for (let my = 0; my < lowlevel.TILEMAP_V_SIZE; my++) {
+        for (let mx = 0; mx < lowlevel.TILEMAP_H_SIZE; mx++) {
+            let tileIndex = tileMap[my * (tileMapImage.width / lowlevel.GRAPHIC_H_SIZE) + mx];
+            lowlevel.setBackgroundTile(mx, my, tileIndex);
+        }
+    }
 
     graphics.setDebugText(`Imported tile map with ${tiles.length} tiles and ${palette.length} colors.`);
     graphics.showDebugText();
@@ -84,6 +90,7 @@ function extractTiles(indexedBuffer, lowlevel, mapWidth, mapHeight) {
     let tileWidth = lowlevel.GRAPHIC_H_SIZE;
     let tileHeight = lowlevel.GRAPHIC_V_SIZE;
     let tiles = [];
+    let tileMap = [];
     for (let y = 0; y < mapHeight; y += tileHeight) {
         for (let x = 0; x < mapWidth; x += tileWidth) {
             let tile = [];
@@ -93,14 +100,19 @@ function extractTiles(indexedBuffer, lowlevel, mapWidth, mapHeight) {
                     tile.push(indexedBuffer[idxSrc]);
                 }
             }
-            if (tiles.length < lowlevel.GRAPHICS_SIZE) {
-                if (!tiles.some(t => arraysEqual(t, tile))) {
+            let tileIndex = tiles.findIndex(t => arraysEqual(t, tile));
+            if (tileIndex === -1) {
+                if (tiles.length < lowlevel.GRAPHICS_SIZE) {
+                    tileIndex = tiles.length;
                     tiles.push(tile);
+                } else {
+                    tileIndex = 255;
                 }
             }
+            tileMap.push(tileIndex);
         }
     }
-    return tiles;
+    return [tiles, tileMap];
 }
 
 function arraysEqual(a, b) {
