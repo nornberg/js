@@ -201,8 +201,8 @@ function main() {
   lowlevel.init(frame);
   graphics.init("gamecanvas", lowlevel);
   setup();
-  //importPng.importTileMap(lowlevel, graphics);
-  graphics.start();
+  importPng.importTileMap(lowlevel, graphics);
+  //graphics.start();
 }
 
 main();
