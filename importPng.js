@@ -12,8 +12,12 @@ export function importTileMap(lowlevel, graphics) {
     let [imgDataSrc, imgDataReduced] = createTileMapImageData(tileMapImage);
     let [indexedBuffer, palette] = convertToIndexedColor(imgDataSrc, lowlevel.PALETTE_COLORS);
     lowlevel.setPalette(0, palette);
-    
-    graphics.setDebugText(`Imported tile map with ${palette.length} colors.`);
+    let tiles = extractTiles(indexedBuffer, lowlevel, tileMapImage.width, tileMapImage.height);
+    tiles.forEach((tile, index) => {
+        lowlevel.setGraphic(index, tile);
+    });
+
+    graphics.setDebugText(`Imported tile map with ${tiles.length} tiles and ${palette.length} colors.`);
     graphics.showDebugText();
     
     drawIndexedBufferToImageData(indexedBuffer, palette, imgDataReduced);
@@ -75,3 +79,34 @@ function drawIndexedBufferToImageData(indexedBuffer, palette, imgData) {
         }
     }
 }
+
+function extractTiles(indexedBuffer, lowlevel, mapWidth, mapHeight) {
+    let tileWidth = lowlevel.GRAPHIC_H_SIZE;
+    let tileHeight = lowlevel.GRAPHIC_V_SIZE;
+    let tiles = [];
+    for (let y = 0; y < mapHeight; y += tileHeight) {
+        for (let x = 0; x < mapWidth; x += tileWidth) {
+            let tile = [];
+            for (let ty = 0; ty < tileHeight; ty++) {
+                for (let tx = 0; tx < tileWidth; tx++) {
+                    let idxSrc = ((y + ty) * mapWidth + (x + tx));
+                    tile.push(indexedBuffer[idxSrc]);
+                }
+            }
+            if (tiles.length < lowlevel.GRAPHICS_SIZE) {
+                if (!tiles.some(t => arraysEqual(t, tile))) {
+                    tiles.push(tile);
+                }
+            }
+        }
+    }
+    return tiles;
+}
+
+function arraysEqual(a, b) {
+    if (a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i++) {
+        if (a[i] !== b[i]) return false;
+    }
+    return true;
+}  

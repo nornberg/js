@@ -202,7 +202,7 @@ function main() {
   graphics.init("gamecanvas", lowlevel);
   setup();
   importPng.importTileMap(lowlevel, graphics);
-  //graphics.start();
+  graphics.start();
 }
 
 main();
