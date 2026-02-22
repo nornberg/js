@@ -12,6 +12,8 @@ let fps = 0;
 let lastFrameCountTimestamp = 0;
 let currentTimestamp = performance.now();
 
+let bgSave = [];
+
 function setup() {
   setupGraphics();
   setupBackground();
@@ -31,14 +33,22 @@ function frame() {
   }
   //graphics.setDebugText(`Logic fps: ${fps}`);
 
-  lowlevel.setBackgroundTile(pos.x, pos.y, 3);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y, 3);
-  lowlevel.setBackgroundTile(pos.x, pos.y+1, 3);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 3);
+  if (bgSave.length > 1) {
+    lowlevel.setBackgroundTile(pos.x, pos.y, bgSave[0]);
+    lowlevel.setBackgroundTile(pos.x+1, pos.y, bgSave[1]);
+    lowlevel.setBackgroundTile(pos.x, pos.y+1, bgSave[2]);
+    lowlevel.setBackgroundTile(pos.x+1, pos.y+1, bgSave[3]);
+  }
   pos.x = pos.x + direction;
   if (pos.x <= 5 || pos.x >= 60) {
     direction = -direction;
   }
+  bgSave = [
+    lowlevel.getBackgroundTile(pos.x, pos.y),
+    lowlevel.getBackgroundTile(pos.x+1, pos.y),
+    lowlevel.getBackgroundTile(pos.x, pos.y+1),
+    lowlevel.getBackgroundTile(pos.x+1, pos.y+1),
+  ]
   lowlevel.setBackgroundTile(pos.x, pos.y, 255);
   lowlevel.setBackgroundTile(pos.x+1, pos.y, 255);
   lowlevel.setBackgroundTile(pos.x, pos.y+1, 255);

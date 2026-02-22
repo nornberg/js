@@ -96,6 +96,14 @@ export function setBackgroundTile(x, y, tileIdx) {
     return true;
 }
 
+export function getBackgroundTile(x, y) {
+    if (x < 0 || x >= TILEMAP_H_SIZE || y < 0 || y >= TILEMAP_V_SIZE) {
+        return 0;
+    }
+    let idx = y * TILEMAP_H_SIZE + x;
+    return background.tilemap[idx];
+}
+
 export function setBackgroundTransform(tx, ty, cx, cy, sx, sy, ra) {
     background.transform.tx = tx;
     background.transform.ty = ty;
