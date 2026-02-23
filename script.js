@@ -58,22 +58,6 @@ function frame() {
 }
 
 function setupGraphics() {
-  for (let y = 0; y < lowlevel.GRAPHICS_SIZE / 16; y++) {
-    for(let x = 0; x < 16; x++) {
-      let c = x % lowlevel.PALETTE_COLORS;
-      lowlevel.setGraphic(y * 16 + x, [
-        c,c,c,c,c,c,c,c,
-        c,c,c,c,c,c,c,c,
-        c,c,c,c,c,c,c,c,
-        c,c,c,c,c,c,c,c,
-        c,c,c,c,c,c,c,c,
-        c,c,c,c,c,c,c,c,
-        c,c,c,c,c,c,c,c,
-        c,c,c,c,c,c,c,c,
-      ]);
-    }
-  }
-  // TODO: trocar todos gráficos para cores entre 0 e 15, para caber em uma paleta.
   lowlevel.setGraphic(255, [
     1, 2, 2, 2, 2, 2, 2, 2,
     1, 3, 3, 3, 3, 3, 3, 8,
