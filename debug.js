@@ -280,8 +280,8 @@ export function onKeydown(e) {
       if (shiftDown) {
         lowlevel.registers.angle -= 1;
       } else {
-        lowlevel.registers.scaleX *= 0.9;
-        lowlevel.registers.scaleY *= 0.9;
+        lowlevel.registers.scaleX /= 1.1;
+        lowlevel.registers.scaleY /= 1.1;
       }
     } else if (e.key === " ") { 
       pause();
