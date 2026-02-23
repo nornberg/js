@@ -255,3 +255,46 @@ export function isActive() {
 export function cycleGraphicsPalette() {
     graphicsPaletteIndex = (graphicsPaletteIndex + 1) % lowlevel.PALETTE_COUNT;
 }
+
+export function onKeydown(e) {
+    let shiftDown = e.shiftKey; 
+    let ctrlKey = e.ctrlKey;
+    let field = shiftDown ? "center" : ctrlKey ? "shear" : "scroll";
+
+    if (e.key === "ArrowUp") {
+      lowlevel.registers[field + "Y"] -= 1;
+    } else if (e.key === "ArrowDown") {
+      lowlevel.registers[field + "Y"] += 1;
+    } else if (e.key === "ArrowLeft") {
+      lowlevel.registers[field + "X"] -= 1;
+    } else if (e.key === "ArrowRight") {
+      lowlevel.registers[field + "X"] += 1;
+    } else if (e.key === "PageUp") {
+      if (shiftDown) {
+        lowlevel.registers.angle += 1;
+      } else {
+        lowlevel.registers.scaleX *= 1.1;
+        lowlevel.registers.scaleY *= 1.1;
+      }
+    } else if (e.key === "PageDown") {
+      if (shiftDown) {
+        lowlevel.registers.angle -= 1;
+      } else {
+        lowlevel.registers.scaleX *= 0.9;
+        lowlevel.registers.scaleY *= 0.9;
+      }
+    } else if (e.key === " ") { 
+      pause();
+    } else if (e.key === "d") {
+      if (!isActive()) { 
+        activate();
+      } else {
+        deactivate();
+      }
+    } else if (e.key === "i") {
+      cycleIndexesVisibility();
+    } else if (e.key === "p") {
+      cycleGraphicsPalette();
+    } else return true;
+    return false;
+}

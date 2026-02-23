@@ -136,49 +136,10 @@ function setupOther() {
 
 function setupKeys() {
   window.onkeydown = function(e) {
-    let shiftDown = e.shiftKey; 
-    let ctrlKey = e.ctrlKey;
-    let field = shiftDown ? "center" : ctrlKey ? "shear" : "scroll";
-
-    if (e.key === "ArrowUp") {
-      lowlevel.registers[field + "Y"] -= 1;
-    } else if (e.key === "ArrowDown") {
-      lowlevel.registers[field + "Y"] += 1;
-    } else if (e.key === "ArrowLeft") {
-      lowlevel.registers[field + "X"] -= 1;
-    } else if (e.key === "ArrowRight") {
-      lowlevel.registers[field + "X"] += 1;
-    } else if (e.key === "PageUp") {
-      if (shiftDown) {
-        lowlevel.registers.angle += 1;
-      } else {
-        lowlevel.registers.scaleX *= 1.1;
-        lowlevel.registers.scaleY *= 1.1;
-      }
-    } else if (e.key === "PageDown") {
-      if (shiftDown) {
-        lowlevel.registers.angle -= 1;
-      } else {
-        lowlevel.registers.scaleX *= 0.9;
-        lowlevel.registers.scaleY *= 0.9;
-      }
-    } else if (e.key === " ") { 
-      graphics.debug.pause();
-    } else if (e.key === "d") {
-      if (!graphics.debug.isActive()) { 
-        graphics.debug.activate();
-      } else {
-        graphics.debug.deactivate();
-      }
-    } else if (e.key === "F11") {
+    if (e.key === "F11") {
       graphics.debug.deactivate();
       toggleFullscreen("gamecanvas");
-    } else if (e.key === "i") {
-      graphics.debug.cycleIndexesVisibility();
-    } else if (e.key === "p") {
-      graphics.debug.cycleGraphicsPalette();
-    } else return true;
-    return false;
+    } else return graphics.debug.onKeydown(e);
   };
 }
 
