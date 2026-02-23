@@ -152,11 +152,11 @@ function toggleFullscreen(elementName) {
     }
 }
 
-function main() {
+async function main() {
   lowlevel.init(frame);
   graphics.init("gamecanvas", lowlevel);
   setup();
-  importPng.importTileMap(lowlevel, graphics);
+  await importPng.importTileMap(lowlevel, graphics);
   graphics.start();
 }
 

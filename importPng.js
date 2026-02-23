@@ -1,11 +1,10 @@
 "use strict";
  
-export function importTileMap(lowlevel, graphics) {
+export async function importTileMap(lowlevel, graphics) {
     let tileMapImage = new Image();
-    tileMapImage.onload = function() {
-        onTileMapLoad(this, lowlevel, graphics);
-    }
     tileMapImage.src = "/megaman_map_01.png";
+    await tileMapImage.decode();
+    onTileMapLoad(tileMapImage, lowlevel, graphics);
  }
 
  function onTileMapLoad(tileMapImage, lowlevel, graphics) {
