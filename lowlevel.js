@@ -35,8 +35,8 @@ export const graphics = new Uint8Array(GRAPHICS_SIZE * GRAPHIC_H_SIZE * GRAPHIC_
 export let registers = {
     scrollX: 0,
     scrollY: 0,
-    centerX: 0,
-    centerY: 0,   
+    centerX: SCREEN_CENTER_X,
+    centerY: SCREEN_CENTER_Y,   
     scaleX: 1,
     scaleY: 1,
     shearX: 0,

@@ -114,6 +114,9 @@ function renderGraphicToBuffer(buffer, graphic, destX, destY) {
 
 function mapScanlineToScreen(y, bufferBg, bufferScreen) {
     let bgTransform = lowlevel.registers;
+    if (lowlevel.hdma[y]) {
+        bgTransform = {...bgTransform, ...lowlevel.hdma[y]};
+    }
 
     let theta = bgTransform.angle * Math.PI / 180;
     let cos = Math.cos(theta);

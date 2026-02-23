@@ -53,8 +53,6 @@ function frame() {
   lowlevel.setBackgroundTile(pos.x+1, pos.y, 255);
   lowlevel.setBackgroundTile(pos.x, pos.y+1, 255);
   lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 255);
-  
-  lowlevel.hdma[0].angle = (currentTimestamp / 50) % 360;
 }
 
 function setupGraphics() {
@@ -95,26 +93,6 @@ function setupBackground() {
 }
 
 function setupOther() {
-  lowlevel.setHDMA(0,
-  {
-      scrollX: 0,
-      scrollY: 0,
-      centerX: 18 * 8 + 4,
-      centerY: 8 + 4,
-      scaleX: 1,
-      scaleY: 1,
-      shearX: 0,
-      shearY: 0,
-      angle: 0,
-  });
-  for (let y = 1; y < lowlevel.SCANLINES; y++) {
-    let k = y / (lowlevel.SCANLINES - 1);
-      lowlevel.setHDMA(y,
-        {
-            scaleX: 1 + k * 17,
-            scaleY: 1 + k * 17,            
-        });
-  }
   graphics.debug.setAutoPause(graphics.debug.AUTOPAUSE_ON_FRAME);
 }
 
