@@ -14,9 +14,9 @@ let currentTimestamp = performance.now();
 
 let bgSave = [];
 
-function setup() {
+async function setup() {
   setupGraphics();
-  setupBackground();
+  await setupBackground();
   setupOther();
   setupKeys();
 }
@@ -68,28 +68,8 @@ function setupGraphics() {
   ]);
 }
 
-function setupBackground() {
-  lowlevel.background.tilemap.fill(3);
-  lowlevel.setBackgroundTile(18, 7, 255);
-  lowlevel.setBackgroundTile(19, 7, 255);
-  lowlevel.setBackgroundTile(18, 8, 255);
-  lowlevel.setBackgroundTile(19, 8, 255);
-  lowlevel.setBackgroundTile(39, 29, 255);
-  lowlevel.setBackgroundTile(79, 59, 255);
-  lowlevel.setBackgroundTile(79, 1, 255);
-  let k = 32;
-  for(let i = 0; i < lowlevel.PALETTE_COLORS * lowlevel.PALETTE_COUNT; i++) {
-    lowlevel.setBackgroundTile(1 + i % k, 1 + Math.trunc(i / k), i);
-  }
-  lowlevel.setBackgroundTile(18, 1, 255);
-  for (let y = 0; y < lowlevel.background.tilemapH; y++) {
-      lowlevel.setBackgroundTile(0, y, 255);
-      lowlevel.setBackgroundTile(lowlevel.background.tilemapW - 1, y, 255);
-  }
-  for (let x = 0; x < lowlevel.background.tilemapW; x++) {
-      lowlevel.setBackgroundTile(x, 0, 255);
-      lowlevel.setBackgroundTile(x, lowlevel.background.tilemapH - 1, 255); 
-  };
+async function setupBackground() {
+  await importPng.importTileMap(lowlevel, graphics);
 }
 
 function setupOther() {
@@ -133,8 +113,7 @@ function toggleFullscreen(elementName) {
 async function main() {
   lowlevel.init(frame);
   graphics.init("gamecanvas", lowlevel);
-  setup();
-  await importPng.importTileMap(lowlevel, graphics);
+  await setup();
   graphics.start();
 }
 
