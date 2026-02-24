@@ -4,7 +4,7 @@ import * as lowlevel from "./lowlevel.js";
 import * as graphics from "./graphics.js";
 import * as importPng from "./importPng.js";
 
-let pos = {x: 10, y: 20};
+let cameraPos = {x: 0, y: 0};
 let direction = 1;
 
 let frameCount = 0;
@@ -40,16 +40,19 @@ function frame() {
     lastFrameCountTimestamp = currentTimestamp;
     frameCount = 0;
   }
-  //graphics.setDebugText(`Logic fps: ${fps}`);
-
+  
   poolInput();
   if (inputAxis.x !== 0) {
-    lowlevel.registers.scrollX += inputAxis.x;
+    cameraPos.x += inputAxis.x;
+    graphics.setDebugText(`camera: (${cameraPos.x}, ${cameraPos.y})`);
   }
   if (inputAxis.y !== 0) {
-    lowlevel.registers.scrollY += inputAxis.y;
+    cameraPos.y += inputAxis.y;
+    graphics.setDebugText(`camera: (${cameraPos.x}, ${cameraPos.y})`);
   }
 
+  lowlevel.registers.scrollX = cameraPos.x;
+  lowlevel.registers.scrollY = cameraPos.y;
 }
 
 function setupGraphics() {
