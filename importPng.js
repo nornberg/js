@@ -1,32 +1,17 @@
 "use strict";
  
-export async function importTileMap(lowlevel, graphics) {
+export async function importTileMap(tileWidth, tileHeight) {
     let tileMapImage = new Image();
     tileMapImage.src = "/megaman_map_01.png";
     await tileMapImage.decode();
-    onTileMapLoad(tileMapImage, lowlevel, graphics);
- }
+    return processImage(tileMapImage, tileWidth, tileHeight);
+}
 
- function onTileMapLoad(tileMapImage, lowlevel, graphics) {
-    let [imgDataSrc, imgDataReduced] = createTileMapImageData(tileMapImage);
-    let [indexedBuffer, palette] = convertToIndexedColor(imgDataSrc, lowlevel.PALETTE_COLORS);
-    lowlevel.setPalette(0, palette);
-    let [tiles, tileMap] = extractTiles(indexedBuffer, lowlevel, tileMapImage.width, tileMapImage.height);
-    tiles.forEach((tile, index) => {
-        lowlevel.setGraphic(index, tile);
-    });
-    for (let my = 0; my < lowlevel.TILEMAP_V_SIZE; my++) {
-        for (let mx = 0; mx < lowlevel.TILEMAP_H_SIZE; mx++) {
-            let tileIndex = tileMap[my * (tileMapImage.width / lowlevel.GRAPHIC_H_SIZE) + mx];
-            lowlevel.setBackgroundTile(mx, my, tileIndex);
-        }
-    }
-
-    graphics.setDebugText(`Imported tile map with ${tiles.length} tiles and ${palette.length} colors.`);
-    graphics.showDebugText();
-    
-    drawIndexedBufferToImageData(indexedBuffer, palette, imgDataReduced);
-    graphics.ctxScreen.putImageData(imgDataReduced, 0, 0);
+function processImage(tileMapImage, tileWidth, tileHeight) {
+    let tileMapImageData = createTileMapImageData(tileMapImage);
+    let [indexedBuffer, palette] = convertToIndexedColor(tileMapImageData);
+    let [tiles, tileMap] = extractTiles(indexedBuffer, tileWidth, tileHeight, tileMapImage.width, tileMapImage.height);
+    return [tileMap, tiles, palette, tileMapImage.width / tileWidth, tileMapImage.height / tileHeight];
 }
     
 function createTileMapImageData(tileMapImage) {
@@ -36,13 +21,11 @@ function createTileMapImageData(tileMapImage) {
     let tileMapCtx = tileMapCanvas.getContext("2d", { alpha: false, antialias: false, depth: false });
     tileMapCtx.imageSmoothingEnabled = false;
     tileMapCtx.drawImage(tileMapImage, 0, 0);
-    let imgDataOriginal = tileMapCtx.getImageData(0, 0, width, height);
-    let imgDataReduced = tileMapCtx.createImageData(width, height);
-    imgDataReduced.data.fill(255);
-    return [imgDataOriginal, imgDataReduced];
+    let tileMapImageData = tileMapCtx.getImageData(0, 0, width, height);
+    return tileMapImageData;
 }
 
-function convertToIndexedColor(imgData, paletteSize) {
+function convertToIndexedColor(imgData) {
     let palette = [];
     let indexedBuffer = [];
     let width = imgData.width;
@@ -61,33 +44,10 @@ function convertToIndexedColor(imgData, paletteSize) {
             indexedBuffer.push(colorIdx);
         }
     }
-    while (palette.length < paletteSize) {
-        palette.push({r: 0, g: 0, b: 0});
-    }
     return [indexedBuffer, palette];
 }
 
-function drawIndexedBufferToImageData(indexedBuffer, palette, imgData) {
-    let width = imgData.width;
-    let height = imgData.height; 
-    for (let y = 0; y < height; y++) {
-        for (let x = 0; x < width; x++) {
-            let colorIdx = indexedBuffer[y * width + x];
-            let r = palette[colorIdx].r;
-            let g = palette[colorIdx].g;
-            let b = palette[colorIdx].b;
-            
-            let idxSrc = (y * width + x) * 4;
-            imgData.data[idxSrc + 0] = r;
-            imgData.data[idxSrc + 1] = g;
-            imgData.data[idxSrc + 2] = b;
-        }
-    }
-}
-
-function extractTiles(indexedBuffer, lowlevel, mapWidth, mapHeight) {
-    let tileWidth = lowlevel.GRAPHIC_H_SIZE;
-    let tileHeight = lowlevel.GRAPHIC_V_SIZE;
+function extractTiles(indexedBuffer, tileWidth, tileHeight, mapWidth, mapHeight) {
     let tiles = [];
     let tileMap = [];
     for (let y = 0; y < mapHeight; y += tileHeight) {
@@ -100,13 +60,9 @@ function extractTiles(indexedBuffer, lowlevel, mapWidth, mapHeight) {
                 }
             }
             let tileIndex = tiles.findIndex(t => arraysEqual(t, tile));
-            if (tileIndex === -1) {
-                if (tiles.length < lowlevel.GRAPHICS_SIZE) {
-                    tileIndex = tiles.length;
-                    tiles.push(tile);
-                } else {
-                    tileIndex = 255;
-                }
+            if (tileIndex === -1) { 
+                tileIndex = tiles.length;
+                tiles.push(tile);
             }
             tileMap.push(tileIndex);
         }

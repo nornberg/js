@@ -69,7 +69,32 @@ function setupGraphics() {
 }
 
 async function setupBackground() {
-  await importPng.importTileMap(lowlevel, graphics);
+  let [tileMap, tiles, palette, tileMapWidth, tileMapHeight] = await importPng.importTileMap(lowlevel.GRAPHIC_H_SIZE, lowlevel.GRAPHIC_V_SIZE);
+  
+  while (palette.length < lowlevel.PALETTE_COLORS) {
+    palette.push({r: 0, g: 0, b: 0});
+  }
+  if (palette.length > lowlevel.PALETTE_COLORS) {
+    palette = palette.slice(0, lowlevel.PALETTE_COLORS);
+  }
+  lowlevel.setPalette(0, palette);
+  
+  if (tiles.length > lowlevel.GRAPHICS_SIZE) {
+    tiles = tiles.slice(0, lowlevel.GRAPHICS_SIZE);
+  }
+  tiles.forEach((tile, index) => {
+    lowlevel.setGraphic(index, tile);
+  });
+  
+  for (let my = 0; my < lowlevel.TILEMAP_V_SIZE; my++) {
+      for (let mx = 0; mx < lowlevel.TILEMAP_H_SIZE; mx++) {
+          let tileIndex = tileMap[my * tileMapWidth + mx];
+          lowlevel.setBackgroundTile(mx, my, tileIndex);
+      }
+  }
+  
+  graphics.setDebugText(`Imported tile map with ${tiles.length} tiles and ${palette.length} colors.`);
+  graphics.showDebugText();
 }
 
 function setupOther() {
