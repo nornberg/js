@@ -261,15 +261,16 @@ export function onKeydown(e) {
     let ctrlKey = e.ctrlKey;
     let field = shiftDown ? "center" : ctrlKey ? "shear" : "scroll";
 
-    if (e.key === "ArrowUp") {
-      lowlevel.registers[field + "Y"] -= 1;
-    } else if (e.key === "ArrowDown") {
-      lowlevel.registers[field + "Y"] += 1;
-    } else if (e.key === "ArrowLeft") {
-      lowlevel.registers[field + "X"] -= 1;
-    } else if (e.key === "ArrowRight") {
-      lowlevel.registers[field + "X"] += 1;
-    } else if (e.key === "PageUp") {
+    // if (e.key === "ArrowUp") {
+    //   lowlevel.registers[field + "Y"] -= 1;
+    // } else if (e.key === "ArrowDown") {
+    //   lowlevel.registers[field + "Y"] += 1;
+    // } else if (e.key === "ArrowLeft") {
+    //   lowlevel.registers[field + "X"] -= 1;
+    // } else if (e.key === "ArrowRight") {
+    //   lowlevel.registers[field + "X"] += 1;
+    // } else
+    if (e.key === "PageUp") {
       if (shiftDown) {
         lowlevel.registers.angle += 1;
       } else {

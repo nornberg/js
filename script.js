@@ -12,7 +12,16 @@ let fps = 0;
 let lastFrameCountTimestamp = 0;
 let currentTimestamp = performance.now();
 
-let bgSave = [];
+let inputBuffer = {
+  up: false,
+  down: false,
+  left: false,
+  right: false,
+}
+let inputAxis = {
+  x: 0,
+  y: 0,
+}
 
 async function setup() {
   setupGraphics();
@@ -33,26 +42,14 @@ function frame() {
   }
   //graphics.setDebugText(`Logic fps: ${fps}`);
 
-  if (bgSave.length > 1) {
-    lowlevel.setBackgroundTile(pos.x, pos.y, bgSave[0]);
-    lowlevel.setBackgroundTile(pos.x+1, pos.y, bgSave[1]);
-    lowlevel.setBackgroundTile(pos.x, pos.y+1, bgSave[2]);
-    lowlevel.setBackgroundTile(pos.x+1, pos.y+1, bgSave[3]);
+  poolInput();
+  if (inputAxis.x !== 0) {
+    lowlevel.registers.scrollX += inputAxis.x;
   }
-  pos.x = pos.x + direction;
-  if (pos.x <= 5 || pos.x >= 60) {
-    direction = -direction;
+  if (inputAxis.y !== 0) {
+    lowlevel.registers.scrollY += inputAxis.y;
   }
-  bgSave = [
-    lowlevel.getBackgroundTile(pos.x, pos.y),
-    lowlevel.getBackgroundTile(pos.x+1, pos.y),
-    lowlevel.getBackgroundTile(pos.x, pos.y+1),
-    lowlevel.getBackgroundTile(pos.x+1, pos.y+1),
-  ]
-  lowlevel.setBackgroundTile(pos.x, pos.y, 255);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y, 255);
-  lowlevel.setBackgroundTile(pos.x, pos.y+1, 255);
-  lowlevel.setBackgroundTile(pos.x+1, pos.y+1, 255);
+
 }
 
 function setupGraphics() {
@@ -106,8 +103,32 @@ function setupKeys() {
     if (e.key === "F11") {
       graphics.debug.deactivate();
       toggleFullscreen("gamecanvas");
+    } else if (e.key === "ArrowUp") {
+      inputBuffer.up = true;
+    } else if (e.key === "ArrowDown") {
+      inputBuffer.down = true;
+    } else if (e.key === "ArrowLeft") {
+      inputBuffer.left = true;
+    } else if (e.key === "ArrowRight") {
+      inputBuffer.right = true;
     } else return graphics.debug.onKeydown(e);
   };
+  window.onkeyup = function(e) {
+    if (e.key === "ArrowUp") {
+      inputBuffer.up = false;
+    } else if (e.key === "ArrowDown") {
+      inputBuffer.down = false;
+    } else if (e.key === "ArrowLeft") {
+      inputBuffer.left = false;
+    } else if (e.key === "ArrowRight") {
+      inputBuffer.right = false;
+    };
+  }
+}
+
+function poolInput() {
+  inputAxis.x = (inputBuffer.right ? 1 : 0) - (inputBuffer.left ? 1 : 0);
+  inputAxis.y = (inputBuffer.down ? 1 : 0) - (inputBuffer.up ? 1 : 0);
 }
 
 function toggleFullscreen(elementName) {
