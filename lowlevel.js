@@ -90,6 +90,8 @@ export function setGraphicPixel(graphicIdx, x, y, value) {
 export function setBackgroundTile(x, y, tileIdx) {
     x = x % TILEMAP_H_SIZE;
     y = y % TILEMAP_V_SIZE;
+    if (x < 0) x += TILEMAP_H_SIZE;
+    if (y < 0) y += TILEMAP_V_SIZE;
     let idx = y * TILEMAP_H_SIZE + x;
     background.tilemap[idx] = tileIdx;
     return true;
@@ -98,6 +100,8 @@ export function setBackgroundTile(x, y, tileIdx) {
 export function getBackgroundTile(x, y) {
     x = x % TILEMAP_H_SIZE;
     y = y % TILEMAP_V_SIZE;
+    if (x < 0) x += TILEMAP_H_SIZE;
+    if (y < 0) y += TILEMAP_V_SIZE;
     let idx = y * TILEMAP_H_SIZE + x;
     return background.tilemap[idx];
 }
