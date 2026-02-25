@@ -61,6 +61,12 @@ function frame() {
   } else if (cameraPos.x >= mapLimits.xRight) {
     fillMap("right");
     updateMapLimits();
+  } else if (cameraPos.y >= mapLimits.yBottom) {
+    fillMap("down");
+    updateMapLimits();
+  } else if (cameraPos.y <= mapLimits.yTop) {
+    fillMap("up");
+    updateMapLimits();
   }
 
   lowlevel.registers.scrollX = cameraPos.x;
@@ -161,12 +167,42 @@ function updateMapLimits() {
 function fillMap(direction) {
   let screenWidthInTiles = lowlevel.SCREEN_WIDTH / lowlevel.GRAPHIC_H_SIZE;
   let screenHeightInTiles = lowlevel.SCREEN_HEIGHT / lowlevel.GRAPHIC_V_SIZE;
-  if (direction === "right") {
-    let mx = Math.floor((cameraPos.x + lowlevel.SCREEN_WIDTH) / lowlevel.GRAPHIC_H_SIZE);
-    let my = Math.floor(cameraPos.y / lowlevel.GRAPHIC_V_SIZE);
-    for (let ty = 0; ty < screenHeightInTiles; ty++) {
-      let tileIndex = tileMap[(my + ty) * tileMapWidth + mx];
-      lowlevel.setBackgroundTile(mx, my + ty, tileIndex);
+  switch (direction) {
+    case "right": {
+      let mx = Math.floor((cameraPos.x + lowlevel.SCREEN_WIDTH) / lowlevel.GRAPHIC_H_SIZE);
+      let my = Math.floor(cameraPos.y / lowlevel.GRAPHIC_V_SIZE);
+      for (let ty = 0; ty < screenHeightInTiles; ty++) {
+        let tileIndex = tileMap[(my + ty) * tileMapWidth + mx];
+        lowlevel.setBackgroundTile(mx, my + ty, tileIndex);
+      }
+      break;
+    }
+    case "left": {
+      let mx = Math.floor((cameraPos.x - lowlevel.GRAPHIC_H_SIZE) / lowlevel.GRAPHIC_H_SIZE);
+      let my = Math.floor(cameraPos.y / lowlevel.GRAPHIC_V_SIZE);
+      for (let ty = 0; ty < screenHeightInTiles; ty++) {
+        let tileIndex = tileMap[(my + ty) * tileMapWidth + mx];
+        lowlevel.setBackgroundTile(mx, my + ty, tileIndex);
+      }
+      break;
+    }
+    case "down": {
+      let mx = Math.floor(cameraPos.x / lowlevel.GRAPHIC_H_SIZE);
+      let my = Math.floor((cameraPos.y + lowlevel.SCREEN_HEIGHT) / lowlevel.GRAPHIC_V_SIZE);
+      for (let tx = 0; tx < screenWidthInTiles; tx++) {
+        let tileIndex = tileMap[(my) * tileMapWidth + (mx + tx)];
+        lowlevel.setBackgroundTile(mx + tx, my, tileIndex);
+      }
+      break;
+    }
+    case "up": {
+      let mx = Math.floor(cameraPos.x / lowlevel.GRAPHIC_H_SIZE);
+      let my = Math.floor((cameraPos.y - lowlevel.SCREEN_HEIGHT) / lowlevel.GRAPHIC_V_SIZE);
+      for (let tx = 0; tx < screenWidthInTiles; tx++) {
+        let tileIndex = tileMap[(my) * tileMapWidth + (mx + tx)];
+        lowlevel.setBackgroundTile(mx + tx, my, tileIndex);
+      }
+      break;
     }
   }
 }
