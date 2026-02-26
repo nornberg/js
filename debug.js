@@ -1,7 +1,5 @@
 "use strict";
 
-import { setDebugText } from "./graphics";
-
 let lowlevel = null;
 
 let canvasDebugA = null;
@@ -31,6 +29,8 @@ let paused = false;
 
 let active = true;
 let indexesVisibility = 0;
+
+let debugText = "";
 
 export function init(aLowlevel) {
     lowlevel = aLowlevel;    
@@ -99,6 +99,9 @@ export function frame(timestamp) {
 }
 
 function drawScreenBorder(ctx) {
+    let layerWidth = lowlevel.TILEMAP_H_SIZE * lowlevel.GRAPHIC_H_SIZE;
+    let layerHeight = lowlevel.TILEMAP_V_SIZE * lowlevel.GRAPHIC_V_SIZE;
+
     let cx = lowlevel.registers.centerX;
     let cy = lowlevel.registers.centerY;
     let sx = 1 / lowlevel.registers.scaleX;
@@ -117,28 +120,38 @@ function drawScreenBorder(ctx) {
     
     if (dx < 0) {
         sw2 = -dx;
-        dx2 = ctx.width - sw2;
+        dx2 = layerWidth - sw2;
         sw += dx;
         dx = 0;
+        dy2 = dy;
+        sh2 = sh;
+    } else if (dx + sw > layerWidth) {
+        sw2 = dx + sw - layerWidth;
+        dx2 = 0;
+        sw -= sw2;
+        dy2 = dy;
+        sh2 = sh;
     }
     if (dy < 0) {
         sh2 = -dy;
-        dy2 = ctx.height - sh2;
+        dy2 = layerHeight - sh2;
         sh += dy;
         dy = 0;
-    }
-    if (dx + sw > ctx.width) {
-        sw2 = dx + sw - ctx.width;
-        dx2 = 0;
-        sw -= sw2;
-        sw -= 10;
+        dx2 = dx2 !== 0 ? dx2 : dx;
+        sw2 = sw2 !== 0 ? sw2 : sw;
+    } else if (dy + sh > layerHeight) {
+        sh2 = dy + sh - layerHeight;
+        dy2 = 0;
+        sh -= sh2;
+        dx2 = dx2 !== 0 ? dx2 : dx;
+        sw2 = sw2 !== 0 ? sw2 : sw;
     }
 
     drawRectangle(ctx, cx, cy, sx, sy, dx, dy, sw, sh, rad, arcSize);
     if (sw2 !== 0 || sh2 !== 0) {
         drawRectangle(ctx, cx, cy, sx, sy, dx2, dy2, sw2, sh2, rad, arcSize);
     }
-    //setDebugText(`${dx}, ${dy} - ${sw}x${sh} | ${dx2}, ${dy2} - ${sw2}x${sh2}`);
+    debugText = `${dx}, ${dy} - ${sw}x${sh} | ${dx2}, ${dy2} - ${sw2}x${sh2}`;
 }
 
 function drawRectangle(ctx, cx, cy, sx, sy, dx, dy, sw, sh, rad, arcSize) {
@@ -165,6 +178,7 @@ function drawDebugText(ctx) {
     ctx.fillText(debug_line_1, 10, 510);
     ctx.fillText(debug_line_2, 10, 535);
     ctx.fillText(debug_line_3, 10, 555);
+    ctx.fillText(debugText, 10, 575);
 }
 
 function renderPixelsToImgData(imgData, pixels, width, height, palette) {
