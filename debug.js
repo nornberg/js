@@ -1,5 +1,7 @@
 "use strict";
 
+import { setDebugText } from "./graphics";
+
 let lowlevel = null;
 
 let canvasDebugA = null;
@@ -101,13 +103,45 @@ function drawScreenBorder(ctx) {
     let cy = lowlevel.registers.centerY;
     let sx = 1 / lowlevel.registers.scaleX;
     let sy = 1 / lowlevel.registers.scaleY;
+    let arcSize = 5 / sx;
+    let rad = lowlevel.registers.angle * Math.PI / 180;
+    
     let dx = lowlevel.registers.scrollX;
     let dy = lowlevel.registers.scrollY;
     let sw = lowlevel.SCREEN_WIDTH;
     let sh = lowlevel.SCREEN_HEIGHT;
-    let rad = lowlevel.registers.angle * Math.PI / 180;
-    let arcSize = 5 / sx;
+    let dx2 = 0;
+    let dy2 = 0;
+    let sw2 = 0;
+    let sh2 = 0;
+    
+    if (dx < 0) {
+        sw2 = -dx;
+        dx2 = ctx.width - sw2;
+        sw += dx;
+        dx = 0;
+    }
+    if (dy < 0) {
+        sh2 = -dy;
+        dy2 = ctx.height - sh2;
+        sh += dy;
+        dy = 0;
+    }
+    if (dx + sw > ctx.width) {
+        sw2 = dx + sw - ctx.width;
+        dx2 = 0;
+        sw -= sw2;
+        sw -= 10;
+    }
 
+    drawRectangle(ctx, cx, cy, sx, sy, dx, dy, sw, sh, rad, arcSize);
+    if (sw2 !== 0 || sh2 !== 0) {
+        drawRectangle(ctx, cx, cy, sx, sy, dx2, dy2, sw2, sh2, rad, arcSize);
+    }
+    //setDebugText(`${dx}, ${dy} - ${sw}x${sh} | ${dx2}, ${dy2} - ${sw2}x${sh2}`);
+}
+
+function drawRectangle(ctx, cx, cy, sx, sy, dx, dy, sw, sh, rad, arcSize) {
     ctx.strokeStyle = "white";
     ctx.lineWidth = 1 / Math.max(sx, sy);
     ctx.translate(cx, cy);
