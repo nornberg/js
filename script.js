@@ -27,6 +27,10 @@ let inputAxis = {
   y: 0,
 }
 
+const UPDATE_LIMITS_X = 1;
+const UPDATE_LIMITS_Y = 2;
+const UPDATE_LIMITS_BOTH = 3;
+
 async function setup() {
   setupGraphics();
   await setupBackground();
@@ -57,16 +61,17 @@ function frame() {
 
   if (cameraPos.x <= mapLimits.xLeft) {
     fillMap("left");
-    updateMapLimits();
+    updateMapLimits(UPDATE_LIMITS_X);
   } else if (cameraPos.x >= mapLimits.xRight) {
     fillMap("right");
-    updateMapLimits();
-  } else if (cameraPos.y >= mapLimits.yBottom) {
+    updateMapLimits(UPDATE_LIMITS_X);
+  }
+  if (cameraPos.y >= mapLimits.yBottom) {
     fillMap("down");
-    updateMapLimits();
+    updateMapLimits(UPDATE_LIMITS_Y);
   } else if (cameraPos.y <= mapLimits.yTop) {
     fillMap("up");
-    updateMapLimits();
+    updateMapLimits(UPDATE_LIMITS_Y);
   }
 
   lowlevel.registers.scrollX = cameraPos.x;
@@ -155,23 +160,32 @@ function poolInput() {
   inputAxis.y = (inputBuffer.down ? 1 : 0) - (inputBuffer.up ? 1 : 0);
 }
 
-function updateMapLimits() {
-  mapLimits = {
-    xLeft: cameraPos.x - lowlevel.GRAPHIC_H_SIZE,
-    xRight: cameraPos.x + lowlevel.GRAPHIC_H_SIZE,
-    yTop: cameraPos.y - lowlevel.GRAPHIC_V_SIZE,
-    yBottom: cameraPos.y + lowlevel.GRAPHIC_V_SIZE
-  };
+function updateMapLimits(direction) {
+  if (direction === UPDATE_LIMITS_X || direction === UPDATE_LIMITS_BOTH) {
+    mapLimits = {
+      ...mapLimits,
+      xLeft: cameraPos.x - lowlevel.GRAPHIC_H_SIZE,
+      xRight: cameraPos.x + lowlevel.GRAPHIC_H_SIZE,
+    };
+  }
+  if (direction === UPDATE_LIMITS_Y || direction === UPDATE_LIMITS_BOTH) {
+    mapLimits = {
+      ...mapLimits,
+      yTop: cameraPos.y - lowlevel.GRAPHIC_V_SIZE,
+      yBottom: cameraPos.y + lowlevel.GRAPHIC_V_SIZE
+    };
+  }
 }
 
 function fillMap(direction) {
+  let margin = 1;
   let screenWidthInTiles = lowlevel.SCREEN_WIDTH / lowlevel.GRAPHIC_H_SIZE;
   let screenHeightInTiles = lowlevel.SCREEN_HEIGHT / lowlevel.GRAPHIC_V_SIZE;
   switch (direction) {
     case "right": {
       let mx = Math.floor((cameraPos.x + lowlevel.SCREEN_WIDTH) / lowlevel.GRAPHIC_H_SIZE);
       let my = Math.floor(cameraPos.y / lowlevel.GRAPHIC_V_SIZE);
-      for (let ty = my; ty < my + screenHeightInTiles; ty++) {
+      for (let ty = my-margin; ty < my + screenHeightInTiles+margin; ty++) {
         let tileIndex = 255;
         if (mx >= 0 && mx < tileMapWidth && ty >= 0 && ty < tileMapHeight) {
           tileIndex = tileMap[ty * tileMapWidth + mx];
@@ -183,7 +197,7 @@ function fillMap(direction) {
     case "left": {
       let mx = Math.floor((cameraPos.x - lowlevel.GRAPHIC_H_SIZE) / lowlevel.GRAPHIC_H_SIZE);
       let my = Math.floor(cameraPos.y / lowlevel.GRAPHIC_V_SIZE);
-      for (let ty = my; ty < my + screenHeightInTiles; ty++) {
+      for (let ty = my-margin; ty < my + screenHeightInTiles+margin; ty++) {
         let tileIndex = 255;
         if (mx >= 0 && mx < tileMapWidth && ty >= 0 && ty < tileMapHeight) {
           tileIndex = tileMap[ty * tileMapWidth + mx];
@@ -195,7 +209,7 @@ function fillMap(direction) {
     case "down": {
       let mx = Math.floor(cameraPos.x / lowlevel.GRAPHIC_H_SIZE);
       let my = Math.floor((cameraPos.y + lowlevel.SCREEN_HEIGHT) / lowlevel.GRAPHIC_V_SIZE);
-      for (let tx = mx; tx < mx + screenWidthInTiles; tx++) {
+      for (let tx = mx-margin; tx < mx + screenWidthInTiles+margin; tx++) {
         let tileIndex = 255;
         if (tx >= 0 && tx < tileMapWidth && my >= 0 && my < tileMapHeight) {
           tileIndex = tileMap[my * tileMapWidth + tx];
@@ -207,7 +221,7 @@ function fillMap(direction) {
     case "up": {
       let mx = Math.floor(cameraPos.x / lowlevel.GRAPHIC_H_SIZE);
       let my = Math.floor((cameraPos.y - lowlevel.GRAPHIC_V_SIZE) / lowlevel.GRAPHIC_V_SIZE);
-      for (let tx = mx; tx < mx + screenWidthInTiles; tx++) {
+      for (let tx = mx-margin; tx < mx + screenWidthInTiles+margin; tx++) {
         let tileIndex = 255;
         if (tx >= 0 && tx < tileMapWidth && my >= 0 && my < tileMapHeight) {
           tileIndex = tileMap[my * tileMapWidth + tx];
