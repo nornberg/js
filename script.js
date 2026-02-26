@@ -76,6 +76,8 @@ function frame() {
 
   lowlevel.registers.scrollX = cameraPos.x;
   lowlevel.registers.scrollY = cameraPos.y;
+  lowlevel.registers.centerX = cameraPos.x + lowlevel.SCREEN_WIDTH / 2;
+  lowlevel.registers.centerY = cameraPos.y + lowlevel.SCREEN_HEIGHT / 2;
 }
 
 function setupGraphics() {
